@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Warehouse Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; padding: 20px; background-color: #f4f4f9; text-align: center; }
+        h2 { color: #333; }
+        .controls { margin-bottom: 20px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input, select, button { padding: 10px; margin: 5px; font-size: 16px; border-radius: 5px; border: 1px solid #ddd; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; width: 100%; }
+        button:active { background-color: #0056b3; }
+        #reader { width: 100%; max-width: 500px; margin: 0 auto; border-radius: 10px; overflow: hidden; }
+        .log { margin-top: 20px; font-size: 14px; color: #555; text-align: left; background: #fff; padding: 10px; border-radius: 5px; min-height: 100px; }
+        .success { color: green; }
+        .error { color: red; }
+        .mode-switch { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; }
+        .mode-btn { flex: 1; padding: 10px; background: #ddd; border: none; cursor: pointer; }
+        .mode-btn.active { color: white; }
+        #btn-in.active { background-color: #28a745; }
+        #btn-out.active { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+
+    <h2>📦 ระบบจัดการคลังสินค้า</h2>
+
+    <div class="controls">
+        <div class="mode-switch">
+            <button id="btn-in" class="mode-btn active" onclick="setMode('IN')">รับเข้า (IN)</button>
+            <button id="btn-out" class="mode-btn" onclick="setMode('OUT')">จ่ายออก (OUT)</button>
+        </div>
+
+        <label>จำนวน:</label>
+        <input type="number" id="qty" value="1" min="1" style="width: 60px; text-align: center;">
+
+        <input type="text" id="user" value="Admin" placeholder="ชื่อผู้ทำรายการ">
+    </div>
+
+    <div id="reader"></div>
+    <p id="status-text">กำลังรอสแกน...</p>
+
+    <div class="log" id="log">Waiting for scan...</div>
+
+    <script>
+        // ⚠️⚠️ แก้ไข URL ตรงนี้ให้เป็น Production URL จาก n8n ของคุณ ⚠️⚠️
+        const WEBHOOK_URL = "https://YOUR-N8N-URL/webhook/scan-inventory"; 
+
+        let currentMode = 'IN';
+        let isProcessing = false;
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('btn-in').className = mode === 'IN' ? 'mode-btn active' : 'mode-btn';
+            document.getElementById('btn-out').className = mode === 'OUT' ? 'mode-btn active' : 'mode-btn';
+        }
+
+        function logMessage(msg, type = '') {
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            logDiv.innerHTML = `<div class="${type}">[${time}] ${msg}</div>` + logDiv.innerHTML;
+        }
+
+        async function onScanSuccess(decodedText, decodedResult) {
+            if (isProcessing) return; // ป้องกันการยิงรัว
+            isProcessing = true;
+
+            const qty = parseInt(document.getElementById('qty').value);
+            const user = document.getElementById('user').value;
+
+            logMessage(`🔍 Scanned: ${decodedText} | Sending...`);
+
+            // เตรียมข้อมูลส่ง n8n
+            const payload = {
+                sku: decodedText,
+                action: currentMode,
+                qty: qty,
+                user: user
+            };
+
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    logMessage(`✅ Success: ${result.message} (Balance: ${result.balance || result.current_balance})`, 'success');
+                    // เสียงแจ้งเตือนสำเร็จ (ถ้าต้องการ)
+                } else {
+                    logMessage(`❌ Error: ${result.message}`, 'error');
+                }
+
+            } catch (error) {
+                logMessage(`❌ Network Error: ${error.message}`, 'error');
+            }
+
+            // เว้นระยะ 2 วินาทีก่อนให้สแกนใหม่
+            setTimeout(() => { isProcessing = false; }, 2000);
+        }
+
+        // เริ่มต้นกล้อง
+        const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+        html5QrcodeScanner.render(onScanSuccess);
+    </script>
+
+</body>
+</html>
