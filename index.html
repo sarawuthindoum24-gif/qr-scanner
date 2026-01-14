@@ -3,21 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ทดสอบระบบ (Safe Mode)</title>
+    <title>ระบบคลังสินค้า (Final Version)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <style>
-        body { font-family: sans-serif; padding: 20px; text-align: center; }
-        button { padding: 20px; font-size: 20px; background: blue; color: white; border: none; border-radius: 10px; cursor: pointer; }
+        body { font-family: 'Sarabun', sans-serif; padding: 20px; background-color: #f0f2f5; text-align: center; color: #333; }
+        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 480px; margin: 0 auto; }
+        
+        /* ปุ่มเลือกโหมด */
+        .mode-group { display: flex; gap: 8px; margin-bottom: 15px; }
+        .mode-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: #e4e6eb; color: #666; }
+        #btn-in.active { background-color: #28a745; color: white; }
+        #btn-out.active { background-color: #dc3545; color: white; }
+
+        .form-group { text-align: left; margin-bottom: 12px; }
+        label { font-size: 14px; font-weight: bold; display: block; margin-bottom: 4px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        
+        .btn-submit { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-submit:active { transform: scale(0.98); background-color: #0056b3; }
+
+        #reader { width: 100%; margin-top: 20px; border: 2px dashed #ccc; min-height: 200px; background: #f9f9f9; padding-top: 20px;}
+        .log { margin-top: 15px; font-size: 13px; text-align: left; background: #f8f9fa; padding: 10px; border-radius: 8px; height: 150px; overflow-y: auto; border: 1px solid #eee; }
+        .log-item { padding: 4px 0; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
-    <h1>🛠️ หน้าจอทดสอบปุ่ม</h1>
-    <p>ถ้าเห็นหน้านี้ แสดงว่าเว็บใช้ได้ครับ</p>
-    <button onclick="testClick()">👆 ลองกดปุ่มนี้ดูครับ</button>
 
-    <script>
-        function testClick() {
-            alert("✅ เย้! ปุ่มทำงานปกติครับ\n\nขั้นตอนต่อไป: ค่อยเอาลิงก์ n8n มาใส่ครับ");
-        }
-    </script>
-</body>
-</html>
+<div class="container">
+    <h3 style="margin-top:0;">📦 ระบบคลัง (พร้อมใช้)</h3>
+    <div id="error-box" style="background:#ffecec; color:red; padding:10px; border-radius:5px; display:none; text-align:left; font-size:12px; margin-bottom:10px;"></div>
+
+    <div class="mode-group">
+        <button id="btn-in" class="mode-btn active" onclick="setMode('IN')">📥 รับเข้า</button>
+        <button id="btn-out" class="mode-btn" onclick="setMode('OUT')">📤 จ่ายออก</button>
+    </div>
+
+    <div class="form-group">
+        <label>รหัสสินค้า (SKU):</label>
+        <input type="text" id="sku" placeholder="พิมพ์รหัส หรือ สแกน..." autocomplete="off">
+    </div>
+    
+    <div style="display:flex; gap:10px;">
+        <div class="form-group" style="flex:1;">
+            <label>จำนวน:</label>
+            <input type="number" id="qty" value="1" min="1">
+        </div>
+        <div class="form-group" style="flex:1;">
+            <label>ผู้ทำรายการ:</label>
+            <input type="text" id="user" value="Admin">
+        </div>
+    </div>
+
+    <button class="btn-submit" onclick="manualSubmit()">💾 บันทึกรายการ</button>
+
+    <div id="reader"></div>
+    <div class="log" id="log">รอโหลดระบบ...</div>
+</div>
+
+<script>
+    // --- 🛑 หยุดก่อน! อ่านตรงนี้ 🛑 ---
+    // เวลาวางลิงก์ ห้ามลบเครื่องหมาย " (ฟันหนู) หัว-ท้าย เด็ดขาด!
+    // ตัวอย่างที่ถูก: const WEBHOOK_URL = "https://n8n.....";
+    
+    const WEBHOOK_URL = "วางลิงก์_N8N_ของคุณทับข้อความนี้"; 
+
+    // ------------------------------------
+
+    window.onerror = function(msg, url, line) {
+        document.getElementById('error-box').style.display = 'block';
+        document.getElementById('error-box').innerHTML += `❌ Error: ${msg} (Line: ${line})<br>`;
+    };
+
+    let currentMode = 'IN';
+    let isProcessing = false;
+
+    function setMode(mode) {
+        currentMode = mode;
