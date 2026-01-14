@@ -3,145 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบคลังสินค้า (Hybrid)</title>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <title>ระบบคลังสินค้า (Debug Mode)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <style>
         body { font-family: 'Sarabun', sans-serif; padding: 20px; background-color: #f0f2f5; text-align: center; color: #333; }
         .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 480px; margin: 0 auto; }
         
-        /* ปุ่มเลือกโหมด */
         .mode-group { display: flex; gap: 8px; margin-bottom: 15px; }
-        .mode-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; background: #e4e6eb; color: #666; }
+        .mode-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: #e4e6eb; color: #666; }
         #btn-in.active { background-color: #28a745; color: white; }
         #btn-out.active { background-color: #dc3545; color: white; }
 
-        /* ฟอร์มกรอกข้อมูล */
         .form-group { text-align: left; margin-bottom: 12px; }
         label { font-size: 14px; font-weight: bold; display: block; margin-bottom: 4px; }
         input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
         
-        /* ปุ่มบันทึก */
         .btn-submit { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn-submit:active { transform: scale(0.98); background-color: #0056b3; }
 
-        /* กล้อง */
-        #reader { width: 100%; border-radius: 8px; overflow: hidden; margin-top: 20px; border: 1px solid #ddd; min-height: 250px; background: #000; }
+        /* แก้ไขกล้องจอดำ: เอาสีดำออก และกำหนดความสูงขั้นต่ำ */
+        #reader { width: 100%; margin-top: 20px; border: 2px dashed #ccc; min-height: 200px; background: #f9f9f9; padding-top: 20px;}
         
-        /* Log */
-        .log { margin-top: 15px; font-size: 13px; text-align: left; background: #f8f9fa; padding: 10px; border-radius: 8px; height: 100px; overflow-y: auto; border: 1px solid #eee; }
-        .log-item { padding: 4px 0; border-bottom: 1px solid #eee; }
-        .success { color: green; } .error { color: red; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h3 style="margin-top:0;">📦 จัดการคลังสินค้า</h3>
-
-    <div class="mode-group">
-        <button id="btn-in" class="mode-btn active" onclick="setMode('IN')">📥 รับเข้า (IN)</button>
-        <button id="btn-out" class="mode-btn" onclick="setMode('OUT')">📤 จ่ายออก (OUT)</button>
-    </div>
-
-    <div class="form-group">
-        <label>รหัสสินค้า (SKU):</label>
-        <input type="text" id="sku" placeholder="สแกน หรือ พิมพ์รหัสที่นี่..." autocomplete="off">
-    </div>
-    
-    <div style="display:flex; gap:10px;">
-        <div class="form-group" style="flex:1;">
-            <label>จำนวน:</label>
-            <input type="number" id="qty" value="1" min="1">
-        </div>
-        <div class="form-group" style="flex:1;">
-            <label>ผู้ทำรายการ:</label>
-            <input type="text" id="user" value="Admin">
-        </div>
-    </div>
-
-    <button class="btn-submit" onclick="manualSubmit()">💾 บันทึกรายการ</button>
-
-    <div id="reader"></div>
-    <p style="font-size:12px; color:#888; margin-top:5px;">*ใช้กล้องสแกน หรือ พิมพ์รหัสแล้วกดบันทึก</p>
-
-    <div class="log" id="log">ระบบพร้อมทำงาน...</div>
-</div>
-
-<script>
-    // ⚠️⚠️ อย่าลืมแก้ URL ตรงนี้ให้เป็นของคุณ ⚠️⚠️
-    const WEBHOOK_URL = "https://YOUR-N8N-URL/webhook/scan-inventory"; 
-
-    let currentMode = 'IN';
-    let isProcessing = false;
-
-    // ตั้งค่าโหมด
-    function setMode(mode) {
-        currentMode = mode;
-        document.getElementById('btn-in').className = mode === 'IN' ? 'mode-btn active' : 'mode-btn';
-        document.getElementById('btn-out').className = mode === 'OUT' ? 'mode-btn active' : 'mode-btn';
-    }
-
-    // ฟังก์ชันส่งข้อมูล (ใช้ร่วมกันทั้งกล้องและปุ่มกด)
-    async function sendData(sku) {
-        if (!sku) { alert("กรุณาระบุรหัสสินค้า!"); return; }
-        if (isProcessing) return;
-        
-        isProcessing = true;
-        const qty = parseInt(document.getElementById('qty').value) || 1;
-        const user = document.getElementById('user').value || 'Unknown';
-        
-        logToScreen(`⏳ กำลังส่ง: ${sku} (${currentMode} : ${qty})...`, 'normal');
-
-        try {
-            const response = await fetch(WEBHOOK_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sku: sku, action: currentMode, qty: qty, user: user })
-            });
-
-            const text = await response.text();
-            let result;
-            try { result = JSON.parse(text); } catch(e) { result = { message: text }; }
-
-            if (response.ok) {
-                logToScreen(`✅ สำเร็จ: ${result.message || 'บันทึกแล้ว'}`, 'success');
-                // เคลียร์ช่อง SKU เพื่อรอคีย์ใหม่
-                document.getElementById('sku').value = "";
-            } else {
-                logToScreen(`❌ ผิดพลาด: ${result.message}`, 'error');
-            }
-        } catch (error) {
-            logToScreen(`❌ เชื่อมต่อไม่ได้: ${error.message}`, 'error');
-        }
-
-        setTimeout(() => { isProcessing = false; }, 2000);
-    }
-
-    // กดปุ่มบันทึก
-    function manualSubmit() {
-        const sku = document.getElementById('sku').value.trim();
-        sendData(sku);
-    }
-
-    // แสดง Log บนหน้าจอ
-    function logToScreen(msg, type) {
-        const logDiv = document.getElementById('log');
-        const color = type === 'success' ? 'green' : (type === 'error' ? 'red' : '#333');
-        const time = new Date().toLocaleTimeString('th-TH');
-        logDiv.innerHTML = `<div class="log-item" style="color:${color}">[${time}] ${msg}</div>` + logDiv.innerHTML;
-    }
-
-    // ตั้งค่ากล้อง
-    function onScanSuccess(decodedText, decodedResult) {
-        if (isProcessing) return;
-        // ใส่ค่าลงในช่อง SKU แล้วส่งเลย
-        document.getElementById('sku').value = decodedText;
-        sendData(decodedText);
-    }
-
-    // เริ่มต้นกล้อง (ใส่ try-catch ป้องกันหน้าจอขาวถ้ากล้องพัง)
-    try {
-        const html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
-            fps: 10, 
-            qrbox: 250,
-            formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE, Html5Qrcode
+        .log { margin-top: 15px; font-size: 13px; text-align: left; background: #f8f9fa; padding: 10px; border-radius: 8px; height: 150px; overflow-y: auto; border: 1px solid #eee; }
+        .log-
