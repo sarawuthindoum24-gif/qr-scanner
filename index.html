@@ -3,151 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบคลังสินค้า (Final Version)</title>
+    <title>ระบบคลังสินค้า (Pro Version)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; padding: 20px; background-color: #f0f2f5; text-align: center; color: #333; }
-        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 480px; margin: 0 auto; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; text-align: center; }
+        .container { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
         
-        /* ปุ่มเลือกโหมด */
-        .mode-group { display: flex; gap: 8px; margin-bottom: 15px; }
-        .mode-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: #e4e6eb; color: #666; }
-        #btn-in.active { background-color: #28a745; color: white; }
-        #btn-out.active { background-color: #dc3545; color: white; }
-
-        .form-group { text-align: left; margin-bottom: 12px; }
-        label { font-size: 14px; font-weight: bold; display: block; margin-bottom: 4px; }
-        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        /* ส่วนเลือกโหมด */
+        .mode-selection { display: flex; gap: 10px; margin-bottom: 20px; }
+        .mode-btn { flex: 1; padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-size: 18px; font-weight: bold; color: #aaa; cursor: pointer; transition: 0.2s; }
         
-        .btn-submit { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-submit:active { transform: scale(0.98); background-color: #0056b3; }
+        /* สีปุ่มเมื่อถูกเลือก */
+        .mode-btn.active-in { background-color: #d4edda; border-color: #28a745; color: #155724; }
+        .mode-btn.active-out { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
 
-        #reader { width: 100%; margin-top: 20px; border: 2px dashed #ccc; min-height: 200px; background: #f9f9f9; padding-top: 20px;}
-        .log { margin-top: 15px; font-size: 13px; text-align: left; background: #f8f9fa; padding: 10px; border-radius: 8px; height: 150px; overflow-y: auto; border: 1px solid #eee; }
-        .log-item { padding: 4px 0; border-bottom: 1px solid #eee; }
+        .form-group { text-align: left; margin-bottom: 15px; }
+        label { font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        input:focus { outline: none; border-color: #007bff; }
+
+        /* พื้นที่กล้อง */
+        #reader { width: 100%; margin-bottom: 15px; border-radius: 10px; overflow: hidden; display: none; }
+        
+        /* ปุ่มยืนยัน */
+        .btn-confirm { 
+            width: 100%; padding: 15px; font-size: 20px; font-weight: bold; color: white; border: none; border-radius: 10px; cursor: pointer; 
+            background-color: #ccc; /* สีเทาตอนยังไม่เลือกโหมด */
+            pointer-events: none; /* กดไม่ได้ตอนแรก */
+            transition: 0.3s;
+        }
+        .btn-confirm.ready-in { background-color: #28a745; pointer-events: auto; }
+        .btn-confirm.ready-out { background-color: #dc3545; pointer-events: auto; }
+        .btn-confirm:active { transform: scale(0.98); }
+
+        .log { margin-top: 20px; font-size: 14px; text-align: left; background: #fafafa; padding: 10px; border-radius: 8px; height: 120px; overflow-y: auto; border: 1px solid #eee; }
+        .log div { border-bottom: 1px solid #eee; padding: 5px 0; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h3 style="margin-top:0;">📦 ระบบคลัง (พร้อมใช้)</h3>
-    <div id="error-box" style="background:#ffecec; color:red; padding:10px; border-radius:5px; display:none; text-align:left; font-size:12px; margin-bottom:10px;"></div>
+    <h2>📦 ระบบจัดการคลังสินค้า</h2>
 
-    <div class="mode-group">
-        <button id="btn-in" class="mode-btn active" onclick="setMode('IN')">📥 รับเข้า</button>
-        <button id="btn-out" class="mode-btn" onclick="setMode('OUT')">📤 จ่ายออก</button>
+    <div class="mode-selection">
+        <button id="btn-in" class="mode-btn" onclick="selectMode('IN')">📥 รับเข้า</button>
+        <button id="btn-out" class="mode-btn" onclick="selectMode('OUT')">📤 จ่ายออก</button>
     </div>
-
-    <div class="form-group">
-        <label>รหัสสินค้า (SKU):</label>
-        <input type="text" id="sku" placeholder="พิมพ์รหัส หรือ สแกน..." autocomplete="off">
-    </div>
-    
-    <div style="display:flex; gap:10px;">
-        <div class="form-group" style="flex:1;">
-            <label>จำนวน:</label>
-            <input type="number" id="qty" value="1" min="1">
-        </div>
-        <div class="form-group" style="flex:1;">
-            <label>ผู้ทำรายการ:</label>
-            <input type="text" id="user" value="Admin">
-        </div>
-    </div>
-
-    <button class="btn-submit" onclick="manualSubmit()">💾 บันทึกรายการ</button>
-
-    <div id="reader"></div>
-    <div class="log" id="log">รอโหลดระบบ...</div>
-</div>
-
-<script>
-    // --- 🛑 หยุดก่อน! อ่านตรงนี้ 🛑 ---
-    // เวลาวางลิงก์ ห้ามลบเครื่องหมาย " (ฟันหนู) หัว-ท้าย เด็ดขาด!
-    // ตัวอย่างที่ถูก: const WEBHOOK_URL = "https://n8n.....";
-    
-    const WEBHOOK_URL = "https://sarawut24.app.n8n.cloud/webhook/scan-inventory"; 
-
-    // ------------------------------------
-
-    window.onerror = function(msg, url, line) {
-        document.getElementById('error-box').style.display = 'block';
-        document.getElementById('error-box').innerHTML += `❌ Error: ${msg} (Line: ${line})<br>`;
-    };
-
-    let currentMode = 'IN';
-    let isProcessing = false;
-
-    function setMode(mode) {
-        currentMode = mode;
-        document.getElementById('btn-in').className = mode === 'IN' ? 'mode-btn active' : 'mode-btn';
-        document.getElementById('btn-out').className = mode === 'OUT' ? 'mode-btn active' : 'mode-btn';
-    }
-
-    function logToScreen(msg, type) {
-        const logDiv = document.getElementById('log');
-        const color = type === 'success' ? 'green' : (type === 'error' ? 'red' : '#333');
-        const time = new Date().toLocaleTimeString('th-TH');
-        logDiv.innerHTML = `<div class="log-item" style="color:${color}">[${time}] ${msg}</div>` + logDiv.innerHTML;
-    }
-
-    async function sendData(sku) {
-        if (!sku) { alert("กรุณาระบุรหัสสินค้า!"); return; }
-        if (WEBHOOK_URL.includes("วางลิงก์")) { alert("❌ คุณลืมเปลี่ยนลิงก์ n8n ในโค้ดครับ!"); return; }
-
-        if (isProcessing) return;
-        isProcessing = true;
-        
-        const qty = parseInt(document.getElementById('qty').value) || 1;
-        const user = document.getElementById('user').value || 'Unknown';
-        
-        logToScreen(`⏳ กำลังส่ง: ${sku}...`, 'normal');
-
-        try {
-            const response = await fetch(WEBHOOK_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sku: sku, action: currentMode, qty: qty, user: user })
-            });
-            const text = await response.text();
-            let result;
-            try { result = JSON.parse(text); } catch(e) { result = { message: text }; }
-
-            if (response.ok) {
-                logToScreen(`✅ สำเร็จ: ${result.message || 'บันทึกแล้ว'}`, 'success');
-                document.getElementById('sku').value = ""; 
-            } else {
-                logToScreen(`❌ ผิดพลาด: ${result.message}`, 'error');
-            }
-        } catch (error) {
-            logToScreen(`❌ เชื่อมต่อไม่ได้: ${error.message}`, 'error');
-        }
-        setTimeout(() => { isProcessing = false; }, 2000);
-    }
-
-    function manualSubmit() {
-        const sku = document.getElementById('sku').value.trim();
-        sendData(sku);
-    }
-
-    function startCamera() {
-        if (typeof Html5QrcodeScanner === 'undefined') { setTimeout(startCamera, 1000); return; }
-        logToScreen("กล้องพร้อมใช้งาน...", 'normal');
-        
-        function onScanSuccess(decodedText) {
-            if (isProcessing) return;
-            document.getElementById('sku').value = decodedText;
-            sendData(decodedText);
-        }
-
-        try {
-            const html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
-                fps: 10, qrbox: 250, formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE, Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.EAN_13 ] 
-            });
-            html5QrcodeScanner.render(onScanSuccess, () => {});
-        } catch (e) { logToScreen("เปิดกล้องไม่ได้ (พิมพ์เอาได้ครับ)", 'error'); }
-    }
-    window.onload = startCamera;
-</script>
-
-</body>
-</html>
