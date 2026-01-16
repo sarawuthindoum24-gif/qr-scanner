@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -50,3 +51,137 @@
         <button id="btn-in" class="mode-btn" onclick="selectMode('IN')">📥 รับเข้า</button>
         <button id="btn-out" class="mode-btn" onclick="selectMode('OUT')">📤 จ่ายออก</button>
     </div>
+
+    <div id="reader"></div>
+    <button id="btn-camera" onclick="toggleCamera()" style="margin-bottom:15px; padding:8px; width:100%; cursor:pointer; display:none;">📷 เปิด/ปิด กล้อง</button>
+
+    <div class="form-group">
+        <label>รหัสสินค้า (SKU):</label>
+        <input type="text" id="sku" placeholder="สแกน หรือ พิมพ์รหัส..." autocomplete="off">
+    </div>
+
+    <div style="display:flex; gap:10px;">
+        <div class="form-group" style="flex:1;">
+            <label>จำนวน:</label>
+            <input type="number" id="qty" value="1" min="1">
+        </div>
+        <div class="form-group" style="flex:1;">
+            <label>ผู้ทำรายการ:</label>
+            <input type="text" id="user" value="Admin">
+        </div>
+    </div>
+
+    <button id="btn-submit" class="btn-confirm" onclick="submitData()">🚫 กรุณาเลือกโหมดก่อน</button>
+
+    <div class="log" id="log">📝 ประวัติการทำงาน...</div>
+</div>
+
+<script>
+    // ⚠️⚠️⚠️ วางลิงก์ n8n ของคุณตรงนี้ (ห้ามลบฟันหนู) ⚠️⚠️⚠️
+    const WEBHOOK_URL = "https://sarawut24.app.n8n.cloud/webhook/scan-inventory"; 
+    // --------------------------------------------------------
+
+    let currentMode = null;
+    let html5QrcodeScanner = null;
+
+    function log(msg, color='black') {
+        const logBox = document.getElementById('log');
+        const time = new Date().toLocaleTimeString('th-TH');
+        logBox.innerHTML = `<div style="color:${color}">[${time}] ${msg}</div>` + logBox.innerHTML;
+    }
+
+    function selectMode(mode) {
+        currentMode = mode;
+        
+        // ปรับสีปุ่มเลือกโหมด
+        document.getElementById('btn-in').className = mode === 'IN' ? 'mode-btn active-in' : 'mode-btn';
+        document.getElementById('btn-out').className = mode === 'OUT' ? 'mode-btn active-out' : 'mode-btn';
+
+        // ปรับปุ่มยืนยันด้านล่าง
+        const submitBtn = document.getElementById('btn-submit');
+        submitBtn.className = mode === 'IN' ? 'btn-confirm ready-in' : 'btn-confirm ready-out';
+        submitBtn.innerText = mode === 'IN' ? '✅ ยืนยัน "รับเข้า" (IN)' : '✅ ยืนยัน "จ่ายออก" (OUT)';
+
+        // แสดงปุ่มเปิดกล้อง
+        document.getElementById('btn-camera').style.display = 'block';
+        
+        // ถ้าเพิ่งเลือกครั้งแรก ให้เปิดกล้องเลยเพื่อความสะดวก
+        if (!html5QrcodeScanner) toggleCamera();
+    }
+
+    function toggleCamera() {
+        const reader = document.getElementById('reader');
+        if (reader.style.display === 'block') {
+             // ปิดกล้อง
+            if(html5QrcodeScanner) { html5QrcodeScanner.clear(); html5QrcodeScanner = null; }
+            reader.style.display = 'none';
+        } else {
+            // เปิดกล้อง
+            reader.style.display = 'block';
+            html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+            html5QrcodeScanner.render(onScanSuccess);
+        }
+    }
+
+    function onScanSuccess(decodedText) {
+        // เมื่อสแกนติด -> แค่เอาเลขไปใส่ช่อง Input (ไม่ส่งข้อมูล)
+        document.getElementById('sku').value = decodedText;
+        
+        // แจ้งเตือนเสียง หรือ สั่น (ถ้าทำได้)
+        if (navigator.vibrate) navigator.vibrate(100);
+        
+        log(`📷 สแกนเจอ: ${decodedText} (กรุณากดยืนยัน)`, 'blue');
+        
+        // (Optional) ปิดกล้องหลังสแกนเสร็จเพื่อให้เห็นหน้าจอชัดๆ
+        // toggleCamera(); 
+    }
+
+    async function submitData() {
+        if (!currentMode) { alert("กรุณาเลือกโหมด รับเข้า หรือ จ่ายออก ก่อนครับ"); return; }
+        
+        const sku = document.getElementById('sku').value.trim();
+        const qty = parseInt(document.getElementById('qty').value) || 0;
+        const user = document.getElementById('user').value;
+
+        if (!sku) { alert("❌ กรุณาระบุรหัสสินค้า (สแกน หรือ พิมพ์)"); return; }
+        if (qty <= 0) { alert("❌ จำนวนต้องมากกว่า 0"); return; }
+
+        const submitBtn = document.getElementById('btn-submit');
+        const originalText = submitBtn.innerText;
+        submitBtn.innerText = "⏳ กำลังบันทึก...";
+        submitBtn.style.opacity = "0.5";
+
+        try {
+            log(`📡 กำลังส่งข้อมูล... ${sku} (${qty})`, '#555');
+            
+            const response = await fetch(WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sku: sku, action: currentMode, qty: qty, user: user })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                log(`✅ บันทึกสำเร็จ: ${result.message || 'เรียบร้อย'}`, 'green');
+                // ล้างช่อง SKU เพื่อรอชิ้นต่อไป (แต่คงโหมดเดิมไว้)
+                document.getElementById('sku').value = "";
+                document.getElementById('qty').value = "1";
+            } else {
+                log(`❌ เกิดข้อผิดพลาด: ${result.message}`, 'red');
+                alert("บันทึกไม่ผ่าน: " + result.message);
+            }
+
+        } catch (error) {
+            log(`❌ เชื่อมต่อไม่ได้: ${error.message}`, 'red');
+            alert("เชื่อมต่อ Server ไม่ได้");
+        }
+
+        // คืนค่าปุ่ม
+        submitBtn.innerText = originalText;
+        submitBtn.style.opacity = "1";
+    }
+</script>
+
+</body>
+</html>
