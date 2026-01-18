@@ -62,4 +62,257 @@
         
         /* Active States */
         .active-in { background: #e8f5e9; border: 2px solid #28a745; color: #155724; }
-        .active-out { background: #ffebee; border:
+        .active-out { background: #ffebee; border: 2px solid var(--teenoi-red); color: var(--teenoi-red); }
+        .active-new { background: #e3f2fd; border: 2px solid #007bff; color: #004085; }
+        
+        /* ฟอร์ม */
+        input, select { 
+            width: 100%; padding: 12px; margin: 8px 0; 
+            border: 1px solid #ddd; border-radius: 10px; 
+            box-sizing: border-box; font-size: 16px; 
+            background-color: #fafafa;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--teenoi-red); background-color: #fff; }
+
+        .info-display { background-color: #f2f2f2; border: 1px solid #ddd; color: #555; font-weight: bold; cursor: not-allowed; }
+        .hidden { display: none !important; }
+        
+        .form-section { 
+            background: #fff; border: 1px solid #eee;
+            padding: 15px; border-radius: 12px; margin-bottom: 15px; 
+            text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+        .form-label { font-weight: bold; font-size: 14px; color: var(--teenoi-red); margin-top: 5px; display: block; }
+        
+        #reader { width: 100%; margin-bottom: 10px; border-radius: 12px; overflow: hidden; display: none; background: #000; border: 3px solid var(--teenoi-red); }
+        
+        /* ปุ่มยืนยัน */
+        .btn-submit { 
+            width: 100%; padding: 14px; font-size: 18px; color: white; 
+            background: #ccc; border: none; border-radius: 12px; 
+            cursor: not-allowed; margin-top: 10px; font-weight: bold; 
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        
+        .ready-in { background: #28a745; box-shadow: 0 4px 0 #1e7e34; }
+        .ready-out { background: var(--teenoi-red); box-shadow: 0 4px 0 #8a0000; }
+        .ready-new { background: #007bff; box-shadow: 0 4px 0 #0056b3; }
+        .btn-submit:active { transform: translateY(4px); box-shadow: none !important; }
+        
+        /* ปุ่มกล้อง */
+        .camera-btn {
+            width:100%; padding:10px; cursor:pointer; 
+            background:#fff; color: var(--teenoi-red);
+            border: 2px solid var(--teenoi-red); 
+            border-radius:10px; margin-bottom:15px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .camera-btn:hover { background: #fff5f5; }
+
+        #log { margin-top: 20px; text-align: left; font-size: 13px; max-height: 150px; overflow-y: auto; border-top: 2px dashed #eee; padding-top: 10px; }
+        .log-item { padding: 6px 0; border-bottom: 1px solid #f9f9f9; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="header-section">
+        <img src="https://drive.google.com/uc?export=view&id=1pJv1ltq9eVPWYabYWWub9S3fR4QC4UuE" 
+             alt="Suki Teenoi Logo" 
+             class="app-logo"
+             onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Suki_Teenoi_Logo.png/600px-Suki_Teenoi_Logo.png';">
+        <h2>ระบบจัดการคลังแห้ง/สิ้นเปลือง</h2>
+    </div>
+
+    <div class="content-body">
+        <div class="mode-container">
+            <button class="mode-btn" onclick="setMode('IN')" id="btn-in">📥 รับเข้า</button>
+            <button class="mode-btn" onclick="setMode('OUT')" id="btn-out">📤 จ่ายออก</button>
+            <button class="mode-btn" onclick="setMode('NEW')" id="btn-new">✨ สินค้าใหม่</button>
+        </div>
+
+        <div id="group-scan">
+            <div id="reader"></div>
+            <button onclick="toggleCamera()" class="camera-btn">📷 เปิด/ปิด กล้อง</button>
+            
+            <div class="form-section">
+                <span class="form-label">รหัสสินค้า (SKU):</span>
+                <input type="text" id="sku" placeholder="สแกน หรือ พิมพ์..." onchange="searchProduct()">
+                
+                <span class="form-label" style="color:#555;">ชื่อสินค้า:</span>
+                <input type="text" id="name-display" class="info-display" readonly placeholder="...">
+            </div>
+        </div>
+
+        <div id="form-area" class="hidden">
+            <div id="group-new" class="hidden">
+                <div class="form-section">
+                    <span class="form-label">1. ข้อมูลหลัก</span>
+                    <input type="text" id="new-sku" placeholder="รหัสสินค้า (ItemCode)">
+                    <input type="text" id="item-name" placeholder="ชื่อสินค้า (Description)">
+                    <input type="text" id="new-barcode" placeholder="บาร์โค้ด (ถ้ามี)">
+                </div>
+                <div class="form-section">
+                    <span class="form-label">2. หน่วยและการคำนวณ</span>
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1;"><input type="number" id="new-ratio" placeholder="ตัวคูณ" value="1"></div>
+                        <div style="flex:1;"><input type="text" id="new-sap-unit" placeholder="หน่วย SAP"></div>
+                    </div>
+                    <input type="text" id="new-detail" placeholder="รายละเอียดหน่วย">
+                    <input type="number" id="new-weight" placeholder="น้ำหนัก (KG)">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <span class="form-label">จำนวนและหน่วย (Stock):</span>
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:1;"><input type="number" id="qty" value="1"></div>
+                    <div style="flex:1;">
+                        <select id="unit">
+                            <option value="ลัง">ลัง</option>
+                            <option value="ถุง">ถุง</option>
+                            <option value="มัด">มัด</option>
+                            <option value="กก.">กก.</option>
+                            <option value="กระสอบ">กระสอบ</option>
+                            <option value="แพ็ค">แพ็ค</option>
+                            <option value="ขวด">ขวด</option>
+                            <option value="แกลลอน">แกลลอน</option>
+                            <option value="ชิ้น">ชิ้น</option>
+                        </select>
+                    </div>
+                </div>
+                <span class="form-label" style="margin-top:10px;">ผู้ทำรายการ:</span>
+                <input type="text" id="user" value="Admin" placeholder="ระบุชื่อ">
+            </div>
+
+            <button id="btn-submit" class="btn-submit" onclick="submitData()">กรุณาเลือกโหมด</button>
+        </div>
+        
+        <div id="log">📝 ประวัติการทำงาน...</div>
+    </div>
+</div>
+
+<script>
+    // 👇👇👇 ใส่ลิงก์ Web App URL ของคุณตรงนี้ (เหมือนเดิม) 👇👇👇
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz_XXXXXXXXXXXX/exec"; 
+    // -------------------------------------------------------------
+
+    let currentMode = null;
+    let html5QrcodeScanner = null;
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(b => b.className = 'mode-btn');
+        document.getElementById('btn-' + mode.toLowerCase()).classList.add('active-' + mode.toLowerCase());
+        document.getElementById('form-area').classList.remove('hidden');
+
+        if (mode === 'NEW') {
+            document.getElementById('group-scan').classList.add('hidden');
+            document.getElementById('group-new').classList.remove('hidden');
+        } else {
+            document.getElementById('group-scan').classList.remove('hidden');
+            document.getElementById('group-new').classList.add('hidden');
+        }
+
+        const btn = document.getElementById('btn-submit');
+        btn.className = `btn-submit ready-${mode.toLowerCase()}`;
+        let txt = mode==='IN'?'ยืนยัน "รับเข้า (IN)"':(mode==='OUT'?'ยืนยัน "จ่ายออก (OUT)"':'ยืนยัน "สินค้าใหม่"');
+        btn.innerText = txt;
+        btn.disabled = false;
+    }
+
+    async function searchProduct() {
+        const sku = document.getElementById('sku').value.trim();
+        if(!sku || currentMode === 'NEW') return;
+        const nameDisplay = document.getElementById('name-display');
+        nameDisplay.value = "🔍 กำลังค้นหา..."; nameDisplay.style.color = "orange";
+        try {
+            const response = await fetch(WEBHOOK_URL + "?mode=SEARCH&sku=" + encodeURIComponent(sku));
+            const data = await response.json();
+            if(data.status === 'success') {
+                nameDisplay.value = data.name; nameDisplay.style.color = "#28a745"; 
+                const unitSelect = document.getElementById('unit');
+                let found = false;
+                for(let i=0; i<unitSelect.options.length; i++){
+                    if(unitSelect.options[i].value === data.unit) { unitSelect.selectedIndex = i; found = true; break; }
+                }
+                if(!found && data.unit) {
+                    let opt = document.createElement('option'); opt.value = data.unit; opt.innerHTML = data.unit;
+                    unitSelect.appendChild(opt); unitSelect.value = data.unit;
+                }
+            } else { nameDisplay.value = "❌ ไม่พบสินค้า"; nameDisplay.style.color = "red"; }
+        } catch(e) { nameDisplay.value = "⚠️ เชื่อมต่อไม่ได้"; }
+    }
+
+    function toggleCamera() {
+        const reader = document.getElementById('reader');
+        if (reader.style.display === 'block') {
+            if(html5QrcodeScanner) { html5QrcodeScanner.clear(); html5QrcodeScanner = null; }
+            reader.style.display = 'none';
+        } else {
+            reader.style.display = 'block';
+            html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+            html5QrcodeScanner.render((text) => {
+                document.getElementById('sku').value = text;
+                document.getElementById('reader').style.display = 'none';
+                html5QrcodeScanner.clear(); html5QrcodeScanner = null;
+                searchProduct();
+            });
+        }
+    }
+
+    async function submitData() {
+        if(!currentMode) { alert("กรุณาเลือกโหมด"); return; }
+        let finalSku = (currentMode === 'NEW') ? document.getElementById('new-sku').value.trim() : document.getElementById('sku').value.trim();
+        const qtyVal = document.getElementById('qty').value;
+        
+        if(!finalSku) { alert("กรุณาระบุรหัสสินค้า"); return; }
+        if(!qtyVal || Number(qtyVal) <= 0) { alert("จำนวนต้องมากกว่า 0"); return; }
+        if(currentMode === 'NEW' && !document.getElementById('item-name').value.trim()) { alert("กรุณาระบุชื่อสินค้า"); return; }
+
+        const btn = document.getElementById('btn-submit');
+        const oldText = btn.innerText; btn.innerText = "⏳ กำลังบันทึก..."; btn.disabled = true;
+
+        const payload = {
+            mode: currentMode, sku: finalSku, qty: qtyVal,
+            unit: document.getElementById('unit').value,
+            ratio: document.getElementById('new-ratio').value,
+            name: document.getElementById('item-name').value,
+            user: document.getElementById('user').value,
+            sap_unit: document.getElementById('new-sap-unit').value,
+            barcode: document.getElementById('new-barcode').value,
+            weight: document.getElementById('new-weight').value,
+            detail: document.getElementById('new-detail').value
+        };
+
+        try {
+            const response = await fetch(WEBHOOK_URL, {
+                method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
+
+            if (data.status === 'error') { alert("❌ " + data.message); } 
+            else if (data.status === 'error_log') {
+                alert("❌ " + data.message);
+                logDiv.innerHTML = `<div class="log-item" style="color:red; font-weight:bold;">[${time}] ❌ ${data.message}</div>` + logDiv.innerHTML;
+            } else {
+                alert("✅ " + data.message);
+                let color = currentMode === 'IN' ? '#28a745' : (currentMode === 'OUT' ? '#b30000' : '#007bff');
+                logDiv.innerHTML = `<div class="log-item" style="color:${color}; font-weight:bold;">[${time}] ✅ ${data.message}</div>` + logDiv.innerHTML;
+                
+                document.getElementById('sku').value = ""; document.getElementById('new-sku').value = "";
+                document.getElementById('item-name').value = ""; document.getElementById('new-barcode').value = "";
+                document.getElementById('new-weight').value = ""; document.getElementById('new-detail').value = "";
+                document.getElementById('name-display').value = "";
+            }
+        } catch(e) { alert("Connection Error"); } 
+        finally { btn.innerText = oldText; btn.disabled = false; }
+    }
+</script>
+
+</body>
+</html>
