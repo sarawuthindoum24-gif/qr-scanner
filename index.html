@@ -13,18 +13,22 @@
         h2 { margin-top: 0; color: #444; }
         .mode-container { display: flex; gap: 10px; margin-bottom: 15px; }
         .mode-btn { flex: 1; padding: 12px; border-radius: 10px; border: 2px solid #e0e0e0; font-weight: bold; cursor: pointer; background: white; transition: all 0.2s; }
-        .active-in { background: #d4edda; border-color: #28a745; color: #155724; box-shadow: 0 2px 5px rgba(40, 167, 69, 0.2); }
-        .active-out { background: #f8d7da; border-color: #dc3545; color: #721c24; box-shadow: 0 2px 5px rgba(220, 53, 69, 0.2); }
-        .active-new { background: #cce5ff; border-color: #004085; color: #004085; box-shadow: 0 2px 5px rgba(0, 64, 133, 0.2); }
+        .active-in { background: #d4edda; border-color: #28a745; color: #155724; }
+        .active-out { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .active-new { background: #cce5ff; border-color: #004085; color: #004085; }
+        
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         .info-display { background-color: #e9ecef; border: 1px solid #ced4da; color: #495057; font-weight: bold; cursor: not-allowed; }
         .hidden { display: none; }
+        
         #reader { width: 100%; margin-bottom: 10px; border-radius: 10px; overflow: hidden; display: none; background: #000; }
+        
         .btn-submit { width: 100%; padding: 15px; font-size: 18px; color: white; background: #999; border: none; border-radius: 10px; cursor: not-allowed; margin-top: 15px; font-weight: bold; }
         .ready { cursor: pointer; }
         .ready-in { background: #28a745; }
         .ready-out { background: #dc3545; }
         .ready-new { background: #007bff; }
+        
         #log { margin-top: 20px; text-align: left; font-size: 14px; max-height: 200px; overflow-y: auto; border-top: 1px solid #eee; padding-top: 10px; }
         .log-item { padding: 5px 0; border-bottom: 1px solid #f0f0f0; }
     </style>
@@ -40,21 +44,27 @@
         <button class="mode-btn" onclick="setMode('NEW')" id="btn-new">✨ สินค้าใหม่</button>
     </div>
 
-    <div id="reader"></div>
-    <button onclick="toggleCamera()" style="margin: 5px 0 15px 0; padding: 10px; width: 100%; cursor: pointer; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;">📷 เปิด/ปิด กล้อง</button>
-
-    <div id="form-area" class="hidden">
+    <div id="scan-group">
+        <div id="reader"></div>
+        <button onclick="toggleCamera()" style="margin: 5px 0 15px 0; padding: 10px; width: 100%; cursor: pointer; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;">📷 เปิด/ปิด กล้อง</button>
+        
         <label style="display:block; text-align:left; font-weight:bold;">รหัสสินค้า (SKU):</label>
         <input type="text" id="sku" placeholder="สแกน หรือ พิมพ์..." onchange="searchProduct()">
+        
+        <label style="display:block; text-align:left; font-weight:bold; color:#007bff;">ชื่อสินค้า (จากระบบ):</label>
+        <input type="text" id="name-display" class="info-display" readonly placeholder="รอการสแกน...">
+    </div>
 
-        <div id="display-group">
-            <label style="display:block; text-align:left; font-weight:bold; color:#007bff;">ชื่อสินค้า (จากระบบ):</label>
-            <input type="text" id="name-display" class="info-display" readonly placeholder="รอการสแกน...">
-        </div>
+    <div id="form-area" class="hidden">
+        
+        <div id="new-item-group" class="hidden">
+            <label style="display:block; text-align:left; font-weight:bold; color:#004085;">1. ระบุรหัสสินค้าใหม่:</label>
+            <input type="text" id="new-sku" placeholder="ตั้งรหัสสินค้า เช่น RM-001">
 
-        <div id="new-item-fields" class="hidden">
-            <input type="text" id="item-name" placeholder="ระบุชื่อสินค้าใหม่">
-            <input type="number" id="ratio" placeholder="จำนวนย่อยต่อหน่วย (ใส่ 1 ถ้าไม่มี)" value="1">
+            <label style="display:block; text-align:left; font-weight:bold; color:#004085;">2. ระบุชื่อสินค้าใหม่:</label>
+            <input type="text" id="item-name" placeholder="ชื่อสินค้า">
+            
+            <input type="hidden" id="ratio" value="1">
         </div>
 
         <div style="display:flex; gap:10px;">
@@ -89,7 +99,7 @@
 
 <script>
     // 👇👇👇 ใส่ลิงก์ Web App URL ใหม่ตรงนี้ 👇👇👇
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyMwteL18w48XjY5jyAc4Ki-f-OmII38uMPkv5hmJENoWMk1EC9JmhJ6NgJoFSS7tG8/exec"; 
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwk7oIs54f-a76PGB2fTvWFhPzgcFmVAi-Xe3QYf0WRdXnQDUxc2CuoV2ggL51PZgTF/exec"; 
     // -----------------------------------------------------
 
     let currentMode = null;
@@ -101,17 +111,22 @@
         document.getElementById('btn-' + mode.toLowerCase()).classList.add('active-' + mode.toLowerCase());
         
         document.getElementById('form-area').classList.remove('hidden');
+
+        // จัดการหน้าจอตามโหมด
         if (mode === 'NEW') {
-            document.getElementById('new-item-fields').classList.remove('hidden');
-            document.getElementById('display-group').classList.add('hidden');
+            // โหมดสินค้าใหม่: ซ่อนกล้อง/ช่องสแกนเดิม, โชว์ช่องกรอกใหม่
+            document.getElementById('scan-group').classList.add('hidden');
+            document.getElementById('new-item-group').classList.remove('hidden');
         } else {
-            document.getElementById('new-item-fields').classList.add('hidden');
-            document.getElementById('display-group').classList.remove('hidden');
+            // โหมด IN/OUT: โชว์กล้อง/ช่องสแกน, ซ่อนช่องกรอกใหม่
+            document.getElementById('scan-group').classList.remove('hidden');
+            document.getElementById('new-item-group').classList.add('hidden');
         }
 
         const btn = document.getElementById('btn-submit');
         btn.className = `btn-submit ready ready-${mode.toLowerCase()}`;
-        btn.innerText = `ยืนยัน "${mode === 'IN' ? 'รับเข้า' : (mode === 'OUT' ? 'จ่ายออก' : 'สินค้าใหม่')}"`;
+        let txt = mode === 'IN' ? 'รับสินค้าเข้า (IN)' : (mode === 'OUT' ? 'จ่ายสินค้าออก (OUT)' : 'ยืนยันสินค้าใหม่');
+        btn.innerText = `ยืนยัน "${txt}"`;
     }
 
     async function searchProduct() {
@@ -129,6 +144,7 @@
             if(data.status === 'success') {
                 nameDisplay.value = data.name;
                 nameDisplay.style.color = "green";
+                // Auto Select Unit
                 const unitSelect = document.getElementById('unit');
                 let found = false;
                 for(let i=0; i<unitSelect.options.length; i++){
@@ -151,7 +167,6 @@
             }
         } catch(e) {
             nameDisplay.value = "⚠️ เชื่อมต่อไม่ได้";
-            console.error(e);
         }
     }
 
@@ -176,10 +191,17 @@
     async function submitData() {
         if(!currentMode) { alert("กรุณาเลือกโหมดก่อน"); return; }
         
-        const sku = document.getElementById('sku').value.trim();
+        // เลือก SKU ให้ถูกช่อง (ถ้าโหมด NEW ใช้ช่องใหม่, ถ้า IN/OUT ใช้ช่องสแกนเดิม)
+        let finalSku = "";
+        if (currentMode === 'NEW') {
+            finalSku = document.getElementById('new-sku').value.trim();
+        } else {
+            finalSku = document.getElementById('sku').value.trim();
+        }
+
         const qtyVal = document.getElementById('qty').value;
         
-        if(!sku) { alert("กรุณาระบุรหัสสินค้า"); return; }
+        if(!finalSku) { alert("กรุณาระบุรหัสสินค้า"); return; }
         if(!qtyVal || Number(qtyVal) <= 0) { alert("จำนวนต้องมากกว่า 0"); return; }
 
         const btn = document.getElementById('btn-submit');
@@ -189,7 +211,7 @@
 
         const payload = {
             mode: currentMode,
-            sku: sku,
+            sku: finalSku,
             qty: qtyVal,
             unit: document.getElementById('unit').value,
             ratio: document.getElementById('ratio').value,
@@ -208,25 +230,22 @@
             const logDiv = document.getElementById('log');
             const time = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
 
-            // กรณี Error จริงๆ (เช่น หาไม่เจอ, JSON ผิด)
             if (data.status === 'error') {
-                alert("❌ เกิดข้อผิดพลาด: " + data.message); 
-            } 
-            // กรณีบันทึกแล้ว แต่เป็น Failure Log (เช่น ของไม่พอ)
-            else if (data.status === 'error_log') {
-                alert("❌ " + data.message); // เด้งเตือนผู้ใช้ด้วย
-                // ลง Log สีแดง
+                alert("❌ ผิดพลาด: " + data.message); 
+            } else if (data.status === 'error_log') {
+                alert("❌ " + data.message);
                 let logMsg = `<div class="log-item" style="color:red; font-weight:bold;">[${time}] ❌ ${data.message}</div>`;
                 logDiv.innerHTML = logMsg + logDiv.innerHTML;
-            }
-            // กรณีสำเร็จ
-            else {
-                const color = currentMode === 'IN' ? 'green' : (currentMode === 'OUT' ? 'blue' : 'orange'); // OUT สำเร็จให้เป็นสีน้ำเงิน
+            } else {
+                alert("✅ " + data.message); // เด้ง Alert ตามที่ขอ
+                
+                let color = currentMode === 'IN' ? 'green' : (currentMode === 'OUT' ? 'blue' : 'orange');
                 let logMsg = `<div class="log-item" style="color:${color}">[${time}] ✅ ${data.message}</div>`;
                 logDiv.innerHTML = logMsg + logDiv.innerHTML;
                 
-                // ล้างค่าเมื่อสำเร็จ
+                // ล้างค่า
                 document.getElementById('sku').value = "";
+                document.getElementById('new-sku').value = "";
                 document.getElementById('qty').value = "1";
                 document.getElementById('item-name').value = "";
                 document.getElementById('name-display').value = "";
@@ -243,4 +262,3 @@
 
 </body>
 </html>
-
