@@ -12,27 +12,36 @@
         .container { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 600px; margin: 0 auto; }
         h2 { margin-top: 0; color: #444; }
         
+        /* ปุ่มเลือกโหมด */
         .mode-container { display: flex; gap: 10px; margin-bottom: 15px; }
         .mode-btn { flex: 1; padding: 12px; border-radius: 10px; border: 2px solid #e0e0e0; font-weight: bold; cursor: pointer; background: white; transition: all 0.2s; }
-        .active-in { background: #d4edda; border-color: #28a745; color: #155724; }
-        .active-out { background: #f8d7da; border-color: #dc3545; color: #721c24; }
-        .active-new { background: #cce5ff; border-color: #004085; color: #004085; }
+        
+        .active-in { background: #d4edda; border-color: #28a745; color: #155724; box-shadow: 0 2px 5px rgba(40, 167, 69, 0.2); }
+        .active-out { background: #f8d7da; border-color: #dc3545; color: #721c24; box-shadow: 0 2px 5px rgba(220, 53, 69, 0.2); }
+        .active-new { background: #cce5ff; border-color: #004085; color: #004085; box-shadow: 0 2px 5px rgba(0, 64, 133, 0.2); }
 
+        /* ฟอร์ม */
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         input:focus { outline: none; border-color: #666; }
         
-        /* ช่องแสดงชื่อสินค้า (อ่านอย่างเดียว) */
-        .info-display { background-color: #e9ecef; border: 1px solid #ced4da; color: #495057; font-weight: bold; }
+        /* ช่องแสดงชื่อสินค้า (สีเทา อ่านอย่างเดียว) */
+        .info-display { background-color: #e9ecef; border: 1px solid #ced4da; color: #495057; font-weight: bold; cursor: not-allowed; }
         
         .hidden { display: none; }
+        
+        /* กล้อง */
         #reader { width: 100%; margin-bottom: 10px; border-radius: 10px; overflow: hidden; display: none; background: #000; }
         
+        /* ปุ่มยืนยัน */
         .btn-submit { width: 100%; padding: 15px; font-size: 18px; color: white; background: #999; border: none; border-radius: 10px; cursor: not-allowed; margin-top: 15px; font-weight: bold; }
-        .ready-in { background: #28a745; cursor: pointer; }
-        .ready-out { background: #dc3545; cursor: pointer; }
-        .ready-new { background: #007bff; cursor: pointer; }
+        .ready { cursor: pointer; }
+        .ready-in { background: #28a745; }
+        .ready-out { background: #dc3545; }
+        .ready-new { background: #007bff; }
         
+        /* ประวัติ (Log) */
         #log { margin-top: 20px; text-align: left; font-size: 14px; max-height: 200px; overflow-y: auto; border-top: 1px solid #eee; padding-top: 10px; }
+        .log-item { padding: 5px 0; border-bottom: 1px solid #f0f0f0; }
     </style>
 </head>
 <body>
@@ -53,12 +62,14 @@
         <label style="display:block; text-align:left; font-weight:bold;">รหัสสินค้า (SKU):</label>
         <input type="text" id="sku" placeholder="สแกน หรือ พิมพ์..." onchange="searchProduct()">
 
-        <label id="label-name-display" style="display:block; text-align:left; font-weight:bold; color:#007bff;">ชื่อสินค้า:</label>
-        <input type="text" id="name-display" class="info-display" readonly placeholder="ยังไม่ระบุข้อมูล...">
+        <div id="display-group">
+            <label style="display:block; text-align:left; font-weight:bold; color:#007bff;">ชื่อสินค้า (จากระบบ):</label>
+            <input type="text" id="name-display" class="info-display" readonly placeholder="รอการสแกน...">
+        </div>
 
         <div id="new-item-fields" class="hidden">
-            <input type="text" id="item-name" placeholder="ชื่อสินค้าใหม่ (สำหรับเพิ่มใหม่)">
-            <input type="number" id="ratio" placeholder="จำนวนย่อยต่อหน่วย" value="1">
+            <input type="text" id="item-name" placeholder="ระบุชื่อสินค้าใหม่">
+            <input type="number" id="ratio" placeholder="จำนวนย่อยต่อหน่วย (ใส่ 1 ถ้าไม่มี)" value="1">
         </div>
 
         <div style="display:flex; gap:10px;">
@@ -92,72 +103,61 @@
 </div>
 
 <script>
-    // 👇👇👇 ใส่ลิงก์ Web App URL ใหม่ตรงนี้ 👇👇👇
+    // 👇👇👇 ⚠️ สำคัญ: เอาลิงก์ Web App URL ใหม่ของคุณมาใส่ตรงนี้ ⚠️ 👇👇👇
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxyfWmlOAyWVd8G58H29T0PrO6ECK09ksM4rHaGIQ2zvBeg0ujSYjCEPWyEU4b0VHI/exec"; 
-    // -----------------------------------------------------
+    // ☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️☝️
 
     let currentMode = null;
     let html5QrcodeScanner = null;
 
     function setMode(mode) {
         currentMode = mode;
+        // ปรับสีปุ่ม
         document.querySelectorAll('.mode-btn').forEach(b => b.className = 'mode-btn');
         document.getElementById('btn-' + mode.toLowerCase()).classList.add('active-' + mode.toLowerCase());
         
+        // แสดงฟอร์ม
         document.getElementById('form-area').classList.remove('hidden');
         
-        // ซ่อน/แสดง ชื่อสำหรับเพิ่มใหม่
-        document.getElementById('new-item-fields').className = mode === 'NEW' ? '' : 'hidden';
-        
-        // ถ้าเป็นโหมด NEW ให้ซ่อนช่องแสดงชื่อสินค้า (เพราะเราต้องพิมพ์เอง)
-        document.getElementById('name-display').style.display = mode === 'NEW' ? 'none' : 'block';
-        document.getElementById('label-name-display').style.display = mode === 'NEW' ? 'none' : 'block';
+        // ถ้าเป็นโหมด NEW: แสดงช่องกรอกชื่อใหม่, ซ่อนช่องแสดงชื่อเก่า
+        if (mode === 'NEW') {
+            document.getElementById('new-item-fields').classList.remove('hidden');
+            document.getElementById('display-group').classList.add('hidden');
+            // ล้างค่าหน่วยให้เลือกเอง
+            document.getElementById('unit').disabled = false;
+        } else {
+            // ถ้าเป็น IN/OUT: ซ่อนช่องกรอกชื่อใหม่, แสดงช่องชื่อเก่า
+            document.getElementById('new-item-fields').classList.add('hidden');
+            document.getElementById('display-group').classList.remove('hidden');
+        }
 
+        // ปรับปุ่มยืนยัน
         const btn = document.getElementById('btn-submit');
         btn.className = `btn-submit ready ready-${mode.toLowerCase()}`;
-        btn.innerText = `ยืนยัน "${mode}"`;
+        
+        let modeText = mode === "IN" ? "รับสินค้าเข้า (IN)" : (mode === "OUT" ? "จ่ายสินค้าออก (OUT)" : "เพิ่มสินค้าใหม่ (NEW)");
+        btn.innerText = `ยืนยัน "${modeText}"`;
     }
 
-    // ฟังก์ชันค้นหาข้อมูลสินค้า
+    // 🔥 ฟังก์ชันค้นหาข้อมูล (ดึงชื่อ + หน่วย)
     async function searchProduct() {
         const sku = document.getElementById('sku').value.trim();
-        if(!sku || currentMode === 'NEW') return; // ถ้าเป็นโหมด NEW หรือไม่มีรหัส ไม่ต้องค้น
+        if(!sku || currentMode === 'NEW') return; // โหมด NEW ไม่ต้องค้นหา
 
-        const nameField = document.getElementById('name-display');
-        nameField.value = "🔍 กำลังค้นหา...";
-        nameField.style.color = "orange";
+        const nameDisplay = document.getElementById('name-display');
+        nameDisplay.value = "🔍 กำลังค้นหา...";
+        nameDisplay.style.color = "orange";
 
         try {
-            // ยิงไปหลังบ้านโหมด SEARCH
-            const response = await fetch(WEBHOOK_URL, {
-                method: "POST",
-                mode: "no-cors", // จำเป็นต้องใช้ no-cors แต่เราจะอ่านค่าไม่ได้ตรงๆ ใน Browser ปกติ
-                // ⚠️ แก้ปัญหา: Apps Script "no-cors" จะไม่คืนค่า JSON ให้ Frontend อ่านได้
-                // เราต้องใช้ trick หรือยอมรับว่าใน code แบบง่ายนี้ อาจจะแสดงผลไม่ได้ทันทีถ้าติด CORS
-                // แต่เดี๋ยวก่อน! เราลองใช้แบบ redirect (postData) 
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: JSON.stringify({ mode: "SEARCH", sku: sku })
-            });
-            
-            // เนื่องจากข้อจำกัดของ Google Apps Script แบบง่าย (no-cors) 
-            // เราอาจจะดึงชื่อมาแสดง "ทันที" ไม่ได้ถ้าไม่ได้ตั้งค่า script ให้ถูกต้องแม่นยำ
-            // แต่เพื่อให้ใช้งานได้เลย ผมขอใช้เทคนิค "Redirect"
-            
-            // 🔥 วิธีแก้แบบบ้านๆ ที่ได้ผลแน่นอนคือ "สุ่มเสี่ยง" หรือต้องใช้ "doGet" 
-            // แต่เพื่อไม่ให้คุณต้องแก้เยอะ ผมจะใช้การ "Submit" จริงไปเลยดีกว่า? ไม่ได้
-            
-            // 💡 เอาล่ะ! ผมจะใช้ fetch แบบปกติ (หวังว่า Redirect จะทำงาน)
-            // ถ้าไม่ได้จริงๆ ชื่ออาจจะไม่ขึ้น แต่หน่วยจะไม่เปลี่ยน
-            // ลองใช้ fetch แบบนี้ดูครับ (ส่วนใหญ่จะได้ถ้า deploy เป็น "Anyone")
-            
-            const raw = await fetch(WEBHOOK_URL + "?mode=SEARCH&sku=" + encodeURIComponent(sku));
-            const data = await raw.json();
+            // ยิง GET Request ไปที่ Google Sheet (ต้อง Deploy แบบ Anyone)
+            const response = await fetch(WEBHOOK_URL + "?mode=SEARCH&sku=" + encodeURIComponent(sku));
+            const data = await response.json();
 
             if(data.status === 'success') {
-                nameField.value = data.name;
-                nameField.style.color = "green";
-                
-                // 🔥 ตั้งค่าหน่วยอัตโนมัติ
+                nameDisplay.value = data.name;
+                nameDisplay.style.color = "green";
+
+                // ✅ Auto-Select Unit: เปลี่ยนหน่วยให้อัตโนมัติ
                 const unitSelect = document.getElementById('unit');
                 let found = false;
                 for(let i=0; i<unitSelect.options.length; i++){
@@ -167,7 +167,7 @@
                         break;
                     }
                 }
-                // ถ้าใน list ไม่มีหน่วยนี้ ให้เพิ่มเข้าไปแล้วเลือกเลย
+                // ถ้าหน่วยไม่มีใน list ให้เพิ่มเข้าไปชั่วคราว
                 if(!found && data.unit) {
                     let opt = document.createElement('option');
                     opt.value = data.unit;
@@ -175,25 +175,16 @@
                     unitSelect.appendChild(opt);
                     unitSelect.value = data.unit;
                 }
-                
-            } else {
-                nameField.value = "❌ ไม่พบสินค้า";
-                nameField.style.color = "red";
-            }
 
+            } else {
+                nameDisplay.value = "❌ ไม่พบสินค้า";
+                nameDisplay.style.color = "red";
+            }
         } catch(e) {
-            // กรณี Fetch GET ไม่ได้ (อาจจะต้อง Deploy แบบ execute as me, access: anyone)
-            // เราจะเปลี่ยนไปใช้ POST แบบเดิมแต่หวังผล
-            console.log("Search error, trying fallback");
-            submitSearchPost(sku);
+            console.error(e);
+            nameDisplay.value = "⚠️ เชื่อมต่อไม่ได้ (เช็คสิทธิ์ Deploy)";
+            nameDisplay.style.color = "red";
         }
-    }
-    
-    // ฟังก์ชันสำรองสำหรับการค้นหา
-    async function submitSearchPost(sku) {
-       // ขออนุญาตข้ามส่วนนี้เพื่อความง่าย ให้ใช้ doGet แทนใน Apps Script จะง่ายกว่า
-       // แต่เพื่อให้ Code.gs ที่ให้ไปทำงานได้ ผมต้องแก้ Code.gs เพิ่ม doGet นิดนึงครับ
-       // (ดูคำแนะนำด้านล่าง)
     }
 
     function toggleCamera() {
@@ -210,14 +201,18 @@
                 html5QrcodeScanner.clear();
                 html5QrcodeScanner = null;
                 
-                // 🔥 สแกนเสร็จ สั่งค้นหาทันที!
-                searchProduct(); 
+                // สแกนเสร็จ สั่งค้นหาทันที
+                searchProduct();
             });
         }
     }
 
     async function submitData() {
         if(!currentMode) return;
+        
+        const sku = document.getElementById('sku').value;
+        if(!sku) { alert("กรุณาระบุรหัสสินค้า"); return; }
+
         const btn = document.getElementById('btn-submit');
         const oldText = btn.innerText;
         btn.innerText = "กำลังบันทึก...";
@@ -225,15 +220,16 @@
 
         const payload = {
             mode: currentMode,
-            sku: document.getElementById('sku').value,
+            sku: sku,
             qty: document.getElementById('qty').value,
             unit: document.getElementById('unit').value,
             ratio: document.getElementById('ratio').value,
-            name: document.getElementById('item-name').value,
+            name: document.getElementById('item-name').value, // ใช้เฉพาะตอน NEW
             user: document.getElementById('user').value 
         };
 
         try {
+            // ใช้ POST สำหรับการบันทึก
             await fetch(WEBHOOK_URL, {
                 method: "POST",
                 mode: "no-cors",
@@ -241,14 +237,19 @@
                 body: JSON.stringify(payload)
             });
             
+            // แสดง Log
             const logDiv = document.getElementById('log');
             const time = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
-            let logMsg = `<div style="padding:5px; border-bottom:1px solid #ddd;">[${time}] ✅ ${currentMode} : ${payload.sku} (${payload.qty} ${payload.unit})</div>`;
+            const color = currentMode === 'IN' ? 'green' : (currentMode === 'OUT' ? 'red' : 'blue');
+            
+            let logMsg = `<div class="log-item" style="color:${color}">[${time}] ✅ ${currentMode}: ${payload.sku} (${payload.qty} ${payload.unit})</div>`;
             logDiv.innerHTML = logMsg + logDiv.innerHTML;
             
+            // ล้างค่า (เก็บชื่อผู้ทำรายการไว้)
             document.getElementById('sku').value = "";
-            document.getElementById('name-display').value = ""; // ล้างชื่อที่แสดง
             document.getElementById('qty').value = "1";
+            document.getElementById('item-name').value = "";
+            document.getElementById('name-display').value = "";
             
         } catch(e) {
             alert("Error: " + e.message);
@@ -261,5 +262,3 @@
 
 </body>
 </html>
-
-
