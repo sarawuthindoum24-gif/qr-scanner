@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     
     <style>
-        /* 🎨 THEME: Suki Teenoi Red & Gold (Compact Version) */
+        /* 🎨 THEME: Suki Teenoi Red & Gold */
         :root {
             --teenoi-red: #CE1126;
             --teenoi-dark: #8B0000;
@@ -40,44 +40,49 @@
             max-height: calc(100vh - 20px);
         }
         
-        /* 🔥 HEADER: โลโก้ซ้าย ชื่อกลาง */
+        /* 🔥 HEADER: โลโก้ซ้าย + ชื่อกลาง + บรรทัดเดียว */
         .header-section { 
             background: linear-gradient(135deg, var(--teenoi-red) 0%, var(--teenoi-dark) 100%);
-            padding: 12px 15px; 
+            padding: 10px 15px; 
             color: white;
             border-bottom: 4px solid var(--teenoi-gold);
             display: flex;
             align-items: center;
-            /* justify-content: flex-start;  <-- ไม่ต้องใช้แล้ว เราจะใช้ flex-grow แทน */
-            gap: 10px;
+            /* ใช้ gap จัดระยะห่าง */
+            gap: 10px; 
             flex-shrink: 0;
-            text-align: left;
         }
         
         .app-logo { 
-            width: 55px; 
-            height: 55px; 
+            width: 50px; 
+            height: 50px; 
             object-fit: contain; 
             background: white; 
             border-radius: 50%; 
-            padding: 3px;
+            padding: 2px;
             border: 2px solid var(--teenoi-gold);
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            flex-shrink: 0; /* ห้ามโลโก้หดตัว */
+            flex-shrink: 0; /* ห้ามโลโก้หด */
         }
         
+        /* กล่องข้อความ */
+        .header-title {
+            flex-grow: 1; /* ขยายเต็มพื้นที่ที่เหลือ */
+            text-align: center; /* จัดตัวหนังสือกลาง */
+            overflow: hidden;
+        }
+
         h2 { 
             margin: 0; 
-            font-size: 20px; 
+            font-size: 18px; 
             font-weight: 700; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-            line-height: 1; 
-            white-space: nowrap; 
+            white-space: nowrap; /* ห้ามตัดบรรทัด */
             overflow: hidden;
-            text-overflow: ellipsis;
+            text-overflow: ellipsis; /* ถ้าจอมือถือเล็กมากให้ขึ้น ... */
         }
         
-        /* ส่วนเนื้อหา */
+        /* พื้นที่เนื้อหา */
         .content-body { 
             padding: 15px; 
             overflow-y: auto;
@@ -97,14 +102,11 @@
         .active-out { background: #ffebee; border-color: var(--teenoi-red); color: var(--teenoi-red); }
         .active-new { background: #e3f2fd; border-color: #007bff; color: #004085; }
         
-        /* ฟอร์ม input */
+        /* ฟอร์ม */
         input, select { 
-            width: 100%; 
-            padding: 10px; 
-            margin: 4px 0; 
+            width: 100%; padding: 10px; margin: 4px 0; 
             border: 2px solid #eee; border-radius: 8px; 
-            box-sizing: border-box; font-size: 15px; 
-            background-color: #fafafa;
+            box-sizing: border-box; font-size: 15px; background-color: #fafafa;
         }
         input:focus, select:focus { outline: none; border-color: var(--teenoi-red); background-color: #fff; }
 
@@ -113,8 +115,7 @@
         
         .form-section { 
             background: #fff; border: 1px solid #f0f0f0;
-            padding: 12px;
-            border-radius: 12px; margin-bottom: 12px; 
+            padding: 12px; border-radius: 12px; margin-bottom: 12px; 
             text-align: left; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
         .form-label { font-weight: 700; font-size: 14px; color: var(--teenoi-red); margin-bottom: 2px; display: block; }
@@ -128,8 +129,7 @@
             width: 100%; padding: 14px; font-size: 18px; color: white; 
             background: #ccc; border: none; border-radius: 12px; 
             cursor: not-allowed; margin-top: 10px; font-weight: 700; 
-            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
-            flex-shrink: 0;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1); flex-shrink: 0;
         }
         
         .ready-in { background: #28a745; box-shadow: 0 3px 0 #1e7e34; }
@@ -148,8 +148,8 @@
 
         #log { 
             margin-top: 15px; text-align: left; font-size: 12px; 
-            max-height: 80px; 
-            overflow-y: auto; border-top: 1px dashed #e0e0e0; padding-top: 8px; color: #777;
+            max-height: 80px; overflow-y: auto; 
+            border-top: 1px dashed #e0e0e0; padding-top: 8px; color: #777;
         }
         .log-item { padding: 4px 0; border-bottom: 1px solid #f9f9f9; }
     </style>
@@ -159,13 +159,16 @@
 <div class="container">
     
     <div class="header-section">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Suki_Teenoi_Logo.png/600px-Suki_Teenoi_Logo.png" 
+        <img src="https://drive.google.com/thumbnail?id=1pJv1ltq9eVPWYabYWWub9S3fR4QC4UuE&sz=w200" 
              alt="Suki Teenoi" 
              class="app-logo"
-             onerror="this.onerror=null; this.src='https://drive.google.com/thumbnail?id=1pJv1ltq9eVPWYabYWWub9S3fR4QC4UuE&sz=w200';">
+             onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Suki_Teenoi_Logo.png/600px-Suki_Teenoi_Logo.png';">
         
-        <div style="flex: 1; text-align: center; margin-right: 55px;"> <h2>ระบบจัดการคลัง<br>แห้ง/สิ้นเปลือง</h2>
+        <div class="header-title">
+            <h2>ระบบจัดการคลังแห้ง/สิ้นเปลือง</h2>
         </div>
+        
+        <div style="width: 50px;"></div> 
     </div>
 
     <div class="content-body">
@@ -247,7 +250,7 @@
 </div>
 
 <script>
-    // 👇👇👇 ⚠️ ใส่ลิงก์ Web App URL ของคุณตรงนี้! 👇👇👇
+    // 👇👇👇 ⚠️ ใส่ลิงก์ Web App URL ของคุณตรงนี้! (เช็คดีๆ นะครับ ต้องลงท้ายด้วย /exec) ⚠️ 👇👇👇
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz_XXXXXXXXXXXX/exec"; 
     // -------------------------------------------------------------
 
@@ -300,7 +303,11 @@
                     unitSelect.appendChild(opt); unitSelect.value = data.unit;
                 }
             } else { nameDisplay.value = "❌ ไม่พบสินค้า"; nameDisplay.style.color = "red"; }
-        } catch(e) { nameDisplay.value = "⚠️ เชื่อมต่อไม่ได้"; }
+        } catch(e) { 
+            nameDisplay.value = "⚠️ เชื่อมต่อไม่ได้"; 
+            nameDisplay.style.color = "red";
+            console.error("Search Error:", e);
+        }
     }
 
     function toggleCamera() {
@@ -345,8 +352,12 @@
         };
 
         try {
+            // 🔥 ใช้ no-cors ในกรณีฉุกเฉิน แต่ปกติควรใช้ text/plain เพื่ออ่าน error ได้
+            // ถ้ายัง Error ให้ลองแก้ headers เป็น { "Content-Type": "application/x-www-form-urlencoded" } หรือลบ headers ออก
             const response = await fetch(WEBHOOK_URL, {
-                method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload)
+                method: "POST", 
+                headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+                body: JSON.stringify(payload)
             });
             const data = await response.json();
             const logDiv = document.getElementById('log');
@@ -366,7 +377,10 @@
                 document.getElementById('new-weight').value = ""; document.getElementById('new-detail').value = "";
                 document.getElementById('name-display').value = "";
             }
-        } catch(e) { alert("Connection Error"); } 
+        } catch(e) { 
+            alert("Connection Error: เช็คลิงก์ Web App URL หรือ Internet"); 
+            console.error(e);
+        } 
         finally { btn.innerText = oldText; btn.disabled = false; }
     }
 </script>
