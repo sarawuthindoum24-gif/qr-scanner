@@ -1,185 +1,242 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบคลังสินค้า (Pro Version)</title>
+    <title>ระบบคลังสินค้า Pro</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; text-align: center; }
-        .container { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; margin: 0; padding: 15px; text-align: center; }
+        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 600px; margin: 0 auto; }
         
-        /* ส่วนเลือกโหมด */
-        .mode-selection { display: flex; gap: 10px; margin-bottom: 20px; }
-        .mode-btn { flex: 1; padding: 15px; border: 2px solid #ddd; border-radius: 10px; background: white; font-size: 18px; font-weight: bold; color: #aaa; cursor: pointer; transition: 0.2s; }
-        
-        /* สีปุ่มเมื่อถูกเลือก */
-        .mode-btn.active-in { background-color: #d4edda; border-color: #28a745; color: #155724; }
-        .mode-btn.active-out { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
+        h2 { margin-top: 0; color: #333; }
 
-        .form-group { text-align: left; margin-bottom: 15px; }
-        label { font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
-        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        input:focus { outline: none; border-color: #007bff; }
-
-        /* พื้นที่กล้อง */
-        #reader { width: 100%; margin-bottom: 15px; border-radius: 10px; overflow: hidden; display: none; }
-        
-        /* ปุ่มยืนยัน */
-        .btn-confirm { 
-            width: 100%; padding: 15px; font-size: 20px; font-weight: bold; color: white; border: none; border-radius: 10px; cursor: pointer; 
-            background-color: #ccc; /* สีเทาตอนยังไม่เลือกโหมด */
-            pointer-events: none; /* กดไม่ได้ตอนแรก */
-            transition: 0.3s;
+        /* ปุ่มเลือกโหมด */
+        .mode-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        .mode-btn { 
+            padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; 
+            background: white; font-weight: bold; color: #666; cursor: pointer; transition: 0.2s; 
+            font-size: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .btn-confirm.ready-in { background-color: #28a745; pointer-events: auto; }
-        .btn-confirm.ready-out { background-color: #dc3545; pointer-events: auto; }
-        .btn-confirm:active { transform: scale(0.98); }
+        .mode-btn i { font-size: 20px; margin-bottom: 4px; }
+        
+        .mode-btn.active-in { background-color: #d1e7dd; border-color: #0f5132; color: #0f5132; }
+        .mode-btn.active-out { background-color: #f8d7da; border-color: #842029; color: #842029; }
+        .mode-btn.active-new { background-color: #cfe2ff; border-color: #084298; color: #084298; }
 
-        .log { margin-top: 20px; font-size: 14px; text-align: left; background: #fafafa; padding: 10px; border-radius: 8px; height: 120px; overflow-y: auto; border: 1px solid #eee; }
-        .log div { border-bottom: 1px solid #eee; padding: 5px 0; }
+        /* ฟอร์ม */
+        .form-section { text-align: left; display: none; animation: fadeIn 0.3s; }
+        .form-group { margin-bottom: 12px; }
+        label { font-size: 14px; font-weight: bold; color: #444; display: block; margin-bottom: 4px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        input:focus, select:focus { outline: none; border-color: #0d6efd; }
+
+        /* กล้อง */
+        #reader { width: 100%; border-radius: 8px; overflow: hidden; display: none; margin-bottom: 15px; }
+        
+        /* ปุ่ม */
+        .btn-main { width: 100%; padding: 14px; font-size: 18px; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; opacity: 0.5; pointer-events: none; transition: 0.3s; }
+        .btn-active { opacity: 1; pointer-events: auto; }
+        
+        /* สีปุ่มตามโหมด */
+        .bg-in { background-color: #198754; }
+        .bg-out { background-color: #dc3545; }
+        .bg-new { background-color: #0d6efd; }
+
+        .log-box { margin-top: 20px; font-size: 12px; text-align: left; background: #fafafa; padding: 10px; border-radius: 6px; height: 100px; overflow-y: auto; border: 1px solid #eee; }
+        
+        /* Helper Classes */
+        .hidden { display: none; }
+        .text-hint { font-size: 12px; color: #888; margin-top: 2px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>📦 ระบบจัดการคลังสินค้า</h2>
+    <h2>🏭 จัดการคลังสินค้า</h2>
 
-    <div class="mode-selection">
-        <button id="btn-in" class="mode-btn" onclick="selectMode('IN')">📥 รับเข้า</button>
-        <button id="btn-out" class="mode-btn" onclick="selectMode('OUT')">📤 จ่ายออก</button>
+    <div class="mode-grid">
+        <button class="mode-btn" onclick="setMode('IN')" id="btn-in">📥<br>รับเข้า</button>
+        <button class="mode-btn" onclick="setMode('OUT')" id="btn-out">📤<br>จ่ายออก</button>
+        <button class="mode-btn" onclick="setMode('NEW')" id="btn-new">✨<br>สินค้าใหม่</button>
     </div>
 
     <div id="reader"></div>
-    <button id="btn-camera" onclick="toggleCamera()" style="margin-bottom:15px; padding:8px; width:100%; cursor:pointer; display:none;">📷 เปิด/ปิด กล้อง</button>
+    <button id="btn-camera" onclick="toggleCamera()" style="margin-bottom:15px; padding:8px; width:100%; border:1px solid #ddd; background:#fff; border-radius:6px; cursor:pointer; display:none;">📷 เปิด/ปิด กล้อง</button>
 
-    <div class="form-group">
-        <label>รหัสสินค้า (SKU):</label>
-        <input type="text" id="sku" placeholder="สแกน หรือ พิมพ์รหัส..." autocomplete="off">
-    </div>
+    <div id="main-form" class="form-section">
+        
+        <div class="form-group">
+            <label>รหัสสินค้า (SKU):</label>
+            <input type="text" id="sku" placeholder="สแกน หรือ พิมพ์..." autocomplete="off">
+        </div>
 
-    <div style="display:flex; gap:10px;">
-        <div class="form-group" style="flex:1;">
-            <label>จำนวน:</label>
+        <div class="form-group hidden" id="group-name">
+            <label>ชื่อสินค้า:</label>
+            <input type="text" id="item-name" placeholder="ระบุชื่อเรียกสินค้า...">
+        </div>
+
+        <div class="form-group hidden" id="group-unit">
+            <label>หน่วยนับ:</label>
+            <select id="unit">
+                <option value="ชิ้น">ชิ้น (พื้นฐาน)</option>
+                <option value="กระสอบ">กระสอบ</option>
+                <option value="ลัง">ลัง</option>
+                <option value="มัด">มัด</option>
+                <option value="กิโลกรัม">กิโลกรัม</option>
+                <option value="ขวด">ขวด</option>
+                <option value="ลิตร">ลิตร</option>
+                <option value="ถุง">ถุง</option>
+                <option value="แกลลอน">แกลลอน</option>
+                <option value="ซอง">ซอง</option>
+            </select>
+        </div>
+
+        <div class="form-group hidden" id="group-ratio">
+            <label>อัตราส่วนการแปลง (Conversion):</label>
+            <input type="number" id="ratio" value="1" min="1">
+            <div class="text-hint">เช่น 1 ลัง มี 12 ชิ้น ให้ใส่ 12 (ถ้าเป็นหน่วยย่อยสุดใส่ 1)</div>
+        </div>
+
+        <div class="form-group">
+            <label id="qty-label">จำนวน:</label>
             <input type="number" id="qty" value="1" min="1">
         </div>
-        <div class="form-group" style="flex:1;">
+
+        <div class="form-group">
             <label>ผู้ทำรายการ:</label>
             <input type="text" id="user" value="Admin">
         </div>
+
+        <button id="btn-submit" class="btn-main" onclick="submitData()">กรุณาเลือกโหมด</button>
     </div>
 
-    <button id="btn-submit" class="btn-confirm" onclick="submitData()">🚫 กรุณาเลือกโหมดก่อน</button>
-
-    <div class="log" id="log">📝 ประวัติการทำงาน...</div>
+    <div class="log-box" id="log">📝 ประวัติการทำงาน...</div>
 </div>
 
 <script>
-    // ⚠️⚠️⚠️ วางลิงก์ n8n ของคุณตรงนี้ (ห้ามลบฟันหนู) ⚠️⚠️⚠️
-    const WEBHOOK_URL = "https://sarawut24.app.n8n.cloud/webhook/scan-inventory"; 
-    // --------------------------------------------------------
+    // ⚠️⚠️⚠️ วางลิงก์ Web App URL ของคุณที่นี่ ⚠️⚠️⚠️
+    const WEBHOOK_URL = "https://script.google.com/macros/s/xxxxxxxxx/exec"; 
+    // -----------------------------------------------------
 
     let currentMode = null;
     let html5QrcodeScanner = null;
 
     function log(msg, color='black') {
         const logBox = document.getElementById('log');
-        const time = new Date().toLocaleTimeString('th-TH');
-        logBox.innerHTML = `<div style="color:${color}">[${time}] ${msg}</div>` + logBox.innerHTML;
+        const time = new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
+        logBox.innerHTML = `<div style="color:${color}; border-bottom:1px solid #eee; padding:4px;">[${time}] ${msg}</div>` + logBox.innerHTML;
     }
 
-    function selectMode(mode) {
+    function setMode(mode) {
         currentMode = mode;
         
-        // ปรับสีปุ่มเลือกโหมด
-        document.getElementById('btn-in').className = mode === 'IN' ? 'mode-btn active-in' : 'mode-btn';
-        document.getElementById('btn-out').className = mode === 'OUT' ? 'mode-btn active-out' : 'mode-btn';
+        // Reset Style ปุ่ม
+        document.querySelectorAll('.mode-btn').forEach(b => b.className = 'mode-btn');
+        document.getElementById(`btn-${mode.toLowerCase()}`).classList.add(`active-${mode.toLowerCase()}`);
 
-        // ปรับปุ่มยืนยันด้านล่าง
-        const submitBtn = document.getElementById('btn-submit');
-        submitBtn.className = mode === 'IN' ? 'btn-confirm ready-in' : 'btn-confirm ready-out';
-        submitBtn.innerText = mode === 'IN' ? '✅ ยืนยัน "รับเข้า" (IN)' : '✅ ยืนยัน "จ่ายออก" (OUT)';
-
-        // แสดงปุ่มเปิดกล้อง
+        // แสดงฟอร์มและปุ่มกล้อง
+        document.getElementById('main-form').style.display = 'block';
         document.getElementById('btn-camera').style.display = 'block';
-        
-        // ถ้าเพิ่งเลือกครั้งแรก ให้เปิดกล้องเลยเพื่อความสะดวก
-        if (!html5QrcodeScanner) toggleCamera();
+
+        // จัดการ Input ตามโหมด
+        const groupName = document.getElementById('group-name');
+        const groupUnit = document.getElementById('group-unit');
+        const groupRatio = document.getElementById('group-ratio');
+        const btnSubmit = document.getElementById('btn-submit');
+
+        // Reset ค่าเบื้องต้น
+        groupName.classList.add('hidden');
+        groupUnit.classList.add('hidden');
+        groupRatio.classList.add('hidden');
+        btnSubmit.className = 'btn-main btn-active';
+
+        if (mode === 'IN') {
+            // รับเข้า: SKU + จำนวน
+            btnSubmit.innerText = 'ยืนยัน "รับสินค้าเข้า" (IN)';
+            btnSubmit.classList.add('bg-in');
+        } 
+        else if (mode === 'OUT') {
+            // จ่ายออก: SKU + จำนวน + หน่วย (เพื่อตัดสต็อก)
+            groupUnit.classList.remove('hidden');
+            btnSubmit.innerText = 'ยืนยัน "จ่ายสินค้าออก" (OUT)';
+            btnSubmit.classList.add('bg-out');
+        } 
+        else if (mode === 'NEW') {
+            // เพิ่มใหม่: SKU + ชื่อ + หน่วย + Ratio + จำนวนตั้งต้น
+            groupName.classList.remove('hidden');
+            groupUnit.classList.remove('hidden');
+            groupRatio.classList.remove('hidden');
+            btnSubmit.innerText = 'บันทึก "สินค้าใหม่" (NEW)';
+            btnSubmit.classList.add('bg-new');
+        }
     }
 
     function toggleCamera() {
         const reader = document.getElementById('reader');
         if (reader.style.display === 'block') {
-             // ปิดกล้อง
             if(html5QrcodeScanner) { html5QrcodeScanner.clear(); html5QrcodeScanner = null; }
             reader.style.display = 'none';
         } else {
-            // เปิดกล้อง
             reader.style.display = 'block';
             html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-            html5QrcodeScanner.render(onScanSuccess);
+            html5QrcodeScanner.render((text) => {
+                document.getElementById('sku').value = text;
+                log(`📷 สแกน: ${text}`, 'blue');
+                if(navigator.vibrate) navigator.vibrate(100);
+            });
         }
-    }
-
-    function onScanSuccess(decodedText) {
-        // เมื่อสแกนติด -> แค่เอาเลขไปใส่ช่อง Input (ไม่ส่งข้อมูล)
-        document.getElementById('sku').value = decodedText;
-        
-        // แจ้งเตือนเสียง หรือ สั่น (ถ้าทำได้)
-        if (navigator.vibrate) navigator.vibrate(100);
-        
-        log(`📷 สแกนเจอ: ${decodedText} (กรุณากดยืนยัน)`, 'blue');
-        
-        // (Optional) ปิดกล้องหลังสแกนเสร็จเพื่อให้เห็นหน้าจอชัดๆ
-        // toggleCamera(); 
     }
 
     async function submitData() {
-        if (!currentMode) { alert("กรุณาเลือกโหมด รับเข้า หรือ จ่ายออก ก่อนครับ"); return; }
-        
-        const sku = document.getElementById('sku').value.trim();
-        const qty = parseInt(document.getElementById('qty').value) || 0;
-        const user = document.getElementById('user').value;
+        if (!currentMode) return alert("กรุณาเลือกโหมด");
 
-        if (!sku) { alert("❌ กรุณาระบุรหัสสินค้า (สแกน หรือ พิมพ์)"); return; }
-        if (qty <= 0) { alert("❌ จำนวนต้องมากกว่า 0"); return; }
+        const payload = {
+            mode: currentMode,
+            sku: document.getElementById('sku').value.trim(),
+            qty: document.getElementById('qty').value,
+            user: document.getElementById('user').value,
+            // ข้อมูลเพิ่มเติม
+            name: document.getElementById('item-name').value.trim(),
+            unit: document.getElementById('unit').value,
+            ratio: document.getElementById('ratio').value // อัตราส่วนแปลงหน่วย
+        };
 
-        const submitBtn = document.getElementById('btn-submit');
-        const originalText = submitBtn.innerText;
-        submitBtn.innerText = "⏳ กำลังบันทึก...";
-        submitBtn.style.opacity = "0.5";
+        if (!payload.sku) return alert("❌ กรุณาระบุรหัสสินค้า (SKU)");
+        if (currentMode === 'NEW' && !payload.name) return alert("❌ กรุณาระบุชื่อสินค้า");
+
+        const btn = document.getElementById('btn-submit');
+        const oldText = btn.innerText;
+        btn.innerText = "⏳ กำลังบันทึก...";
+        btn.style.opacity = "0.7";
 
         try {
-            log(`📡 กำลังส่งข้อมูล... ${sku} (${qty})`, '#555');
-            
-            const response = await fetch(WEBHOOK_URL, {
+            // ส่งข้อมูลไป Google Apps Script
+            await fetch(WEBHOOK_URL, {
                 method: "POST",
+                mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sku: sku, action: currentMode, qty: qty, user: user })
+                body: JSON.stringify(payload)
             });
 
-            const result = await response.json();
-
-            if (response.ok) {
-                log(`✅ บันทึกสำเร็จ: ${result.message || 'เรียบร้อย'}`, 'green');
-                // ล้างช่อง SKU เพื่อรอชิ้นต่อไป (แต่คงโหมดเดิมไว้)
-                document.getElementById('sku').value = "";
-                document.getElementById('qty').value = "1";
-            } else {
-                log(`❌ เกิดข้อผิดพลาด: ${result.message}`, 'red');
-                alert("บันทึกไม่ผ่าน: " + result.message);
-            }
+            // *เนื่องจาก no-cors เราจะสรุปว่าสำเร็จถ้าร้องขอไปได้
+            log(`✅ บันทึก ${currentMode}: ${payload.sku} (${payload.qty})`, 'green');
+            
+            // เคลียร์ค่าบางช่อง
+            document.getElementById('sku').value = "";
+            document.getElementById('item-name').value = "";
+            document.getElementById('qty').value = "1";
 
         } catch (error) {
-            log(`❌ เชื่อมต่อไม่ได้: ${error.message}`, 'red');
-            alert("เชื่อมต่อ Server ไม่ได้");
+            log(`❌ Error: ${error.message}`, 'red');
+            alert("เกิดข้อผิดพลาดในการส่งข้อมูล");
         }
 
-        // คืนค่าปุ่ม
-        submitBtn.innerText = originalText;
-        submitBtn.style.opacity = "1";
+        btn.innerText = oldText;
+        btn.style.opacity = "1";
     }
 </script>
 
