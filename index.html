@@ -24,7 +24,7 @@
             box-shadow: 0 8px 20px rgba(179, 0, 0, 0.15); 
             max-width: 600px; 
             margin: 0 auto; 
-            overflow: hidden; /* ตัดขอบมน */
+            overflow: hidden;
         }
         
         /* 🔥 HEADER ดีไซน์ใหม่ */
@@ -32,13 +32,14 @@
             background: linear-gradient(180deg, var(--teenoi-red) 0%, var(--teenoi-red-light) 100%);
             padding: 25px 15px;
             color: white;
-            border-bottom: 5px solid var(--teenoi-gold); /* ขอบทองด้านล่าง */
+            border-bottom: 5px solid var(--teenoi-gold);
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         .app-logo { 
             width: 140px; 
-            height: auto; 
+            height: 140px; /* บังคับความสูงให้เท่ากันเพื่อความเป็นวงกลม */
+            object-fit: contain; /* ปรับรูปให้พอดีกรอบ */
             margin-bottom: 10px; 
             background: white; 
             border-radius: 50%; 
@@ -48,10 +49,8 @@
         
         h2 { margin: 0; font-size: 22px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
         
-        /* BODY */
         .content-body { padding: 20px; }
 
-        /* ปุ่มเลือกโหมด */
         .mode-container { display: flex; gap: 8px; margin-bottom: 20px; }
         .mode-btn { 
             flex: 1; padding: 12px 5px; border-radius: 12px; 
@@ -60,12 +59,10 @@
             transition: all 0.2s;
         }
         
-        /* Active States */
         .active-in { background: #e8f5e9; border: 2px solid #28a745; color: #155724; }
         .active-out { background: #ffebee; border: 2px solid var(--teenoi-red); color: var(--teenoi-red); }
         .active-new { background: #e3f2fd; border: 2px solid #007bff; color: #004085; }
         
-        /* ฟอร์ม */
         input, select { 
             width: 100%; padding: 12px; margin: 8px 0; 
             border: 1px solid #ddd; border-radius: 10px; 
@@ -86,7 +83,6 @@
         
         #reader { width: 100%; margin-bottom: 10px; border-radius: 12px; overflow: hidden; display: none; background: #000; border: 3px solid var(--teenoi-red); }
         
-        /* ปุ่มยืนยัน */
         .btn-submit { 
             width: 100%; padding: 14px; font-size: 18px; color: white; 
             background: #ccc; border: none; border-radius: 12px; 
@@ -100,7 +96,6 @@
         .ready-new { background: #007bff; box-shadow: 0 4px 0 #0056b3; }
         .btn-submit:active { transform: translateY(4px); box-shadow: none !important; }
         
-        /* ปุ่มกล้อง */
         .camera-btn {
             width:100%; padding:10px; cursor:pointer; 
             background:#fff; color: var(--teenoi-red);
@@ -119,10 +114,10 @@
 <div class="container">
     
     <div class="header-section">
-        <img src="https://drive.google.com/uc?export=view&id=1pJv1ltq9eVPWYabYWWub9S3fR4QC4UuE" 
+        <img src="https://drive.google.com/thumbnail?id=1pJv1ltq9eVPWYabYWWub9S3fR4QC4UuE&sz=w500" 
              alt="Suki Teenoi Logo" 
              class="app-logo"
-             onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Suki_Teenoi_Logo.png/600px-Suki_Teenoi_Logo.png';">
+             onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Suki_Teenoi_Logo.png/600px-Suki_Teenoi_Logo.png';">
         <h2>ระบบจัดการคลังแห้ง/สิ้นเปลือง</h2>
     </div>
 
@@ -195,8 +190,8 @@
 </div>
 
 <script>
-    // 👇👇👇 ใส่ลิงก์ Web App URL ของคุณตรงนี้ (เหมือนเดิม) 👇👇👇
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz_XXXXXXXXXXXX/exec"; 
+    // 👇👇👇 ⚠️ อย่าลืมเช็คลิงก์ Web App URL อีกครั้งนะครับ 👇👇👇
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz0QnI98PipL0MTXFDqPzpEgzOc9oLl8mjA4NezLLS0oQZvBFl_b7SLaLgc_PtKsDHw/exec"; 
     // -------------------------------------------------------------
 
     let currentMode = null;
