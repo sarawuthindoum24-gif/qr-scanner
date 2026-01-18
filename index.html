@@ -19,77 +19,46 @@
         body { 
             font-family: 'Sarabun', sans-serif; 
             background-color: var(--bg-color); 
-            padding: 10px; 
-            margin: 0; 
-            text-align: center; 
-            color: #333; 
-            height: 100vh; 
-            box-sizing: border-box;
+            padding: 10px; margin: 0; text-align: center; color: #333; 
+            height: 100vh; box-sizing: border-box;
         }
         
         .container { 
-            background: white; 
-            border-radius: 15px; 
+            background: white; border-radius: 15px; 
             box-shadow: 0 5px 15px rgba(206, 17, 38, 0.15); 
-            max-width: 550px; 
-            margin: 0 auto; 
-            overflow: hidden;
+            max-width: 550px; margin: 0 auto; overflow: hidden;
             border: 1px solid #ffecec;
-            display: flex;
-            flex-direction: column;
+            display: flex; flex-direction: column;
             max-height: calc(100vh - 20px);
         }
         
-        /* 🔥 HEADER: โลโก้ซ้าย + ชื่อกลาง + บรรทัดเดียว */
+        /* 🔥 HEADER: โลโก้ซ้าย + ชื่อกลาง */
         .header-section { 
             background: linear-gradient(135deg, var(--teenoi-red) 0%, var(--teenoi-dark) 100%);
-            padding: 10px 15px; 
-            color: white;
+            padding: 12px 15px; color: white;
             border-bottom: 4px solid var(--teenoi-gold);
-            display: flex;
-            align-items: center;
-            /* ใช้ gap จัดระยะห่าง */
-            gap: 10px; 
-            flex-shrink: 0;
+            display: flex; align-items: center; gap: 10px;
+            flex-shrink: 0; text-align: left;
         }
         
         .app-logo { 
-            width: 50px; 
-            height: 50px; 
-            object-fit: contain; 
-            background: white; 
-            border-radius: 50%; 
-            padding: 2px;
+            width: 55px; height: 55px; object-fit: contain; 
+            background: white; border-radius: 50%; padding: 3px;
             border: 2px solid var(--teenoi-gold);
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            flex-shrink: 0; /* ห้ามโลโก้หด */
+            flex-shrink: 0;
         }
         
-        /* กล่องข้อความ */
-        .header-title {
-            flex-grow: 1; /* ขยายเต็มพื้นที่ที่เหลือ */
-            text-align: center; /* จัดตัวหนังสือกลาง */
-            overflow: hidden;
-        }
+        .header-title { flex-grow: 1; text-align: center; overflow: hidden; }
 
         h2 { 
-            margin: 0; 
-            font-size: 18px; 
-            font-weight: 700; 
+            margin: 0; font-size: 20px; font-weight: 700; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-            white-space: nowrap; /* ห้ามตัดบรรทัด */
-            overflow: hidden;
-            text-overflow: ellipsis; /* ถ้าจอมือถือเล็กมากให้ขึ้น ... */
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         
-        /* พื้นที่เนื้อหา */
-        .content-body { 
-            padding: 15px; 
-            overflow-y: auto;
-            flex-grow: 1;
-        }
+        .content-body { padding: 15px; overflow-y: auto; flex-grow: 1; }
 
-        /* ปุ่มโหมด */
         .mode-container { display: flex; gap: 8px; margin-bottom: 15px; }
         .mode-btn { 
             flex: 1; padding: 10px 5px; border-radius: 10px;
@@ -102,7 +71,6 @@
         .active-out { background: #ffebee; border-color: var(--teenoi-red); color: var(--teenoi-red); }
         .active-new { background: #e3f2fd; border-color: #007bff; color: #004085; }
         
-        /* ฟอร์ม */
         input, select { 
             width: 100%; padding: 10px; margin: 4px 0; 
             border: 2px solid #eee; border-radius: 8px; 
@@ -119,9 +87,7 @@
             text-align: left; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
         .form-label { font-weight: 700; font-size: 14px; color: var(--teenoi-red); margin-bottom: 2px; display: block; }
-        
-        .flex-row { display: flex; gap: 8px; }
-        .flex-row > * { flex: 1; }
+        .flex-row { display: flex; gap: 8px; } .flex-row > * { flex: 1; }
 
         #reader { width: 100%; margin-bottom: 10px; border-radius: 12px; overflow: hidden; display: none; background: #000; border: 3px solid var(--teenoi-gold); }
         
@@ -135,41 +101,30 @@
         .ready-in { background: #28a745; box-shadow: 0 3px 0 #1e7e34; }
         .ready-out { background: var(--teenoi-red); box-shadow: 0 3px 0 #990d1c; }
         .ready-new { background: #007bff; box-shadow: 0 3px 0 #0056b3; }
-        .btn-submit:active { transform: translateY(3px); box-shadow: none !important; }
         
         .camera-btn {
-            width:100%; padding: 8px; cursor:pointer;
-            background: #fff; color: var(--teenoi-red);
-            border: 2px solid var(--teenoi-red); 
-            border-radius: 10px; margin-bottom: 15px; font-weight: bold; font-size: 14px;
+            width:100%; padding: 8px; cursor:pointer; background: #fff; color: var(--teenoi-red);
+            border: 2px solid var(--teenoi-red); border-radius: 10px; margin-bottom: 15px; font-weight: bold; font-size: 14px;
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .camera-btn:hover { background: #fff5f5; }
 
-        #log { 
-            margin-top: 15px; text-align: left; font-size: 12px; 
-            max-height: 80px; overflow-y: auto; 
-            border-top: 1px dashed #e0e0e0; padding-top: 8px; color: #777;
-        }
+        #log { margin-top: 15px; text-align: left; font-size: 12px; max-height: 80px; overflow-y: auto; border-top: 1px dashed #e0e0e0; padding-top: 8px; color: #777; }
         .log-item { padding: 4px 0; border-bottom: 1px solid #f9f9f9; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    
     <div class="header-section">
-        <img src="https://drive.google.com/thumbnail?id=1pJv1ltq9eVPWYabYWWub9S3fR4QC4UuE&sz=w200" 
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Suki_Teenoi_Logo.png/600px-Suki_Teenoi_Logo.png" 
              alt="Suki Teenoi" 
              class="app-logo"
-             onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Suki_Teenoi_Logo.png/600px-Suki_Teenoi_Logo.png';">
+             onerror="this.onerror=null; this.src='https://drive.google.com/thumbnail?id=1pJv1ltq9eVPWYabYWWub9S3fR4QC4UuE&sz=w200';">
         
         <div class="header-title">
             <h2>ระบบจัดการคลังแห้ง/สิ้นเปลือง</h2>
         </div>
-        
-        <div style="width: 50px;"></div> 
-    </div>
+        <div style="width: 55px;"></div> </div>
 
     <div class="content-body">
         <div class="mode-container">
@@ -190,17 +145,14 @@
         </div>
 
         <div id="form-area" class="hidden">
-            
             <div id="group-new" class="hidden">
                 <div class="form-section">
                    <span class="form-label" style="margin-bottom: 8px;">ข้อมูลสินค้าใหม่:</span>
-                   
                    <div class="flex-row">
                        <input type="text" id="new-sku" placeholder="รหัสสินค้า (ItemCode)">
                        <input type="text" id="new-barcode" placeholder="บาร์โค้ด (ถ้ามี)">
                    </div>
                    <input type="text" id="item-name" placeholder="ชื่อสินค้า (Description)">
-                   
                    <div style="margin-top: 4px;">
                        <span class="form-label" style="font-size: 12px;">การแปลงหน่วย:</span>
                        <div class="flex-row">
@@ -208,9 +160,8 @@
                             <input type="text" id="new-sap-unit" placeholder="หน่วย SAP (เช่น ขวด)">
                        </div>
                    </div>
-
                    <div class="flex-row">
-                        <input type="text" id="new-detail" placeholder="รายละเอียด (เช่น ลัง/12ขวด)">
+                        <input type="text" id="new-detail" placeholder="รายละเอียด">
                         <input type="number" id="new-weight" placeholder="น้ำหนัก (KG)">
                    </div>
                 </div>
@@ -250,7 +201,8 @@
 </div>
 
 <script>
-    // 👇👇👇 ⚠️ ใส่ลิงก์ Web App URL ของคุณตรงนี้! (เช็คดีๆ นะครับ ต้องลงท้ายด้วย /exec) ⚠️ 👇👇👇
+    // 👇👇👇 ⚠️ สำคัญมาก! ต้องใช้ Web App URL ล่าสุดจากการ Deploy เท่านั้น ⚠️ 👇👇👇
+    // ต้องลงท้ายด้วย /exec (ห้ามใช้ link /edit)
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz0QnI98PipL0MTXFDqPzpEgzOc9oLl8mjA4NezLLS0oQZvBFl_b7SLaLgc_PtKsDHw/exec"; 
     // -------------------------------------------------------------
 
@@ -306,7 +258,6 @@
         } catch(e) { 
             nameDisplay.value = "⚠️ เชื่อมต่อไม่ได้"; 
             nameDisplay.style.color = "red";
-            console.error("Search Error:", e);
         }
     }
 
@@ -329,6 +280,13 @@
 
     async function submitData() {
         if(!currentMode) { alert("กรุณาเลือกโหมด"); return; }
+        
+        // เช็คลิงก์ก่อนส่ง
+        if (WEBHOOK_URL.includes("XXXX")) {
+            alert("⚠️ คุณยังไม่ได้ใส่ลิงก์ Web App URL ในโค้ดบรรทัดล่างสุดครับ!");
+            return;
+        }
+
         let finalSku = (currentMode === 'NEW') ? document.getElementById('new-sku').value.trim() : document.getElementById('sku').value.trim();
         const qtyVal = document.getElementById('qty').value;
         
@@ -352,12 +310,8 @@
         };
 
         try {
-            // 🔥 ใช้ no-cors ในกรณีฉุกเฉิน แต่ปกติควรใช้ text/plain เพื่ออ่าน error ได้
-            // ถ้ายัง Error ให้ลองแก้ headers เป็น { "Content-Type": "application/x-www-form-urlencoded" } หรือลบ headers ออก
             const response = await fetch(WEBHOOK_URL, {
-                method: "POST", 
-                headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-                body: JSON.stringify(payload)
+                method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload)
             });
             const data = await response.json();
             const logDiv = document.getElementById('log');
@@ -378,8 +332,7 @@
                 document.getElementById('name-display').value = "";
             }
         } catch(e) { 
-            alert("Connection Error: เช็คลิงก์ Web App URL หรือ Internet"); 
-            console.error(e);
+            alert("Connection Error: กรุณาเช็ค Web App URL หรือ Internet"); 
         } 
         finally { btn.innerText = oldText; btn.disabled = false; }
     }
@@ -387,4 +340,3 @@
 
 </body>
 </html>
-
