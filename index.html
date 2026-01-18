@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดการสต็อก</title>
+    <title>ระบบจัดการคลังแห้ง/สิ้นเปลือง</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     
     <style>
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; padding: 10px; margin: 0; text-align: center; color: #333; }
         .container { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 600px; margin: 0 auto; }
-        h2 { margin-top: 0; color: #444; font-size: 20px; }
+        
+        /* Style สำหรับ Header (Logo + Title) */
+        .header-section { margin-bottom: 20px; }
+        .app-logo { width: 120px; height: auto; margin-bottom: 10px; }
+        h2 { margin: 0; color: #CE1126; font-size: 22px; font-weight: bold; } /* สีแดงตี๋น้อย */
         
         .mode-container { display: flex; gap: 8px; margin-bottom: 15px; }
         .mode-btn { flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #e0e0e0; font-weight: bold; cursor: pointer; background: white; font-size: 14px; }
@@ -40,8 +44,11 @@
 <body>
 
 <div class="container">
-    <h2>🏭 จัดการคลังสินค้า</h2>
-
+    
+    <div class="header-section">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Suki_Teenoi_Logo.png/600px-Suki_Teenoi_Logo.png" alt="Suki Teenoi Logo" class="app-logo">
+        <h2>ระบบจัดการคลังแห้ง/สิ้นเปลือง</h2>
+    </div>
     <div class="mode-container">
         <button class="mode-btn" onclick="setMode('IN')" id="btn-in">📥 รับเข้า</button>
         <button class="mode-btn" onclick="setMode('OUT')" id="btn-out">📤 จ่ายออก</button>
@@ -117,7 +124,7 @@
 
 <script>
     // 👇👇👇 ใส่ลิงก์ Web App URL ใหม่ตรงนี้ 👇👇👇
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyz-hoFHQ0HBzItVp36fgMftkS7G18nmNRG1uZYrgk1NkeNtvGSMMnfP73CCGjCdqAv/exec"; 
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz0QnI98PipL0MTXFDqPzpEgzOc9oLl8mjA4NezLLS0oQZvBFl_b7SLaLgc_PtKsDHw/exec"; 
     // -----------------------------------------------------
 
     let currentMode = null;
@@ -218,7 +225,6 @@
             sku: finalSku,
             qty: qtyVal,
             unit: document.getElementById('unit').value,
-            // ข้อมูลเสริมสำหรับ NEW
             ratio: document.getElementById('new-ratio').value,
             name: document.getElementById('item-name').value,
             user: document.getElementById('user').value,
@@ -266,6 +272,3 @@
 
 </body>
 </html>
-
-
-
