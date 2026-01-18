@@ -89,7 +89,7 @@
 
 <script>
     // 👇👇👇 ใส่ลิงก์ Web App URL ใหม่ตรงนี้ 👇👇👇
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxUFigzAw_t_KFlMraPGbj95yFd2jmE6uvYcrk8BV2WDRuJ2WPzdslwg8lNQBzLVrrs/exec"; 
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwD3DS1GPySBCCKcT0PuTRKNphov4Ja7uhdYf6pie1bEpRnz4z7o2cBJfhfrouj7Yur/exec"; 
     // -----------------------------------------------------
 
     let currentMode = null;
@@ -179,14 +179,13 @@
         const sku = document.getElementById('sku').value.trim();
         const qtyVal = document.getElementById('qty').value;
         
-        // Validation หน้าบ้านก่อนส่ง
         if(!sku) { alert("กรุณาระบุรหัสสินค้า"); return; }
         if(!qtyVal || Number(qtyVal) <= 0) { alert("จำนวนต้องมากกว่า 0"); return; }
 
         const btn = document.getElementById('btn-submit');
         const oldText = btn.innerText;
         btn.innerText = "กำลังประมวลผล...";
-        btn.disabled = true; // ป้องกันการกดรัวๆ
+        btn.disabled = true;
 
         const payload = {
             mode: currentMode,
@@ -199,7 +198,6 @@
         };
 
         try {
-            // ใช้ text/plain เพื่อให้ Apps Script อ่าน error ได้ง่ายๆ
             const response = await fetch(WEBHOOK_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -207,18 +205,27 @@
             });
             
             const data = await response.json();
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
 
+            // กรณี Error จริงๆ (เช่น หาไม่เจอ, JSON ผิด)
             if (data.status === 'error') {
                 alert("❌ เกิดข้อผิดพลาด: " + data.message); 
-            } else {
-                const logDiv = document.getElementById('log');
-                const time = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
-                const color = currentMode === 'IN' ? 'green' : (currentMode === 'OUT' ? 'red' : 'blue');
-                
+            } 
+            // กรณีบันทึกแล้ว แต่เป็น Failure Log (เช่น ของไม่พอ)
+            else if (data.status === 'error_log') {
+                alert("❌ " + data.message); // เด้งเตือนผู้ใช้ด้วย
+                // ลง Log สีแดง
+                let logMsg = `<div class="log-item" style="color:red; font-weight:bold;">[${time}] ❌ ${data.message}</div>`;
+                logDiv.innerHTML = logMsg + logDiv.innerHTML;
+            }
+            // กรณีสำเร็จ
+            else {
+                const color = currentMode === 'IN' ? 'green' : (currentMode === 'OUT' ? 'blue' : 'orange'); // OUT สำเร็จให้เป็นสีน้ำเงิน
                 let logMsg = `<div class="log-item" style="color:${color}">[${time}] ✅ ${data.message}</div>`;
                 logDiv.innerHTML = logMsg + logDiv.innerHTML;
                 
-                // ล้างค่า
+                // ล้างค่าเมื่อสำเร็จ
                 document.getElementById('sku').value = "";
                 document.getElementById('qty').value = "1";
                 document.getElementById('item-name').value = "";
