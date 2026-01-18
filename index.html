@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดการสต็อก (แจ้งเตือนของหมด)</title>
+    <title>ระบบจัดการสต็อก</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     
@@ -89,7 +89,7 @@
 
 <script>
     // 👇👇👇 ใส่ลิงก์ Web App URL ใหม่ตรงนี้ 👇👇👇
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzG88aIqFieDIN7vV6V0KLsXvqE_I21K24DSN6dBydP9pYv1_PPdUtYn2peB7bHHivz/exec"; 
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxUFigzAw_t_KFlMraPGbj95yFd2jmE6uvYcrk8BV2WDRuJ2WPzdslwg8lNQBzLVrrs/exec"; 
     // -----------------------------------------------------
 
     let currentMode = null;
@@ -151,6 +151,7 @@
             }
         } catch(e) {
             nameDisplay.value = "⚠️ เชื่อมต่อไม่ได้";
+            console.error(e);
         }
     }
 
@@ -173,19 +174,24 @@
     }
 
     async function submitData() {
-        if(!currentMode) return;
-        const sku = document.getElementById('sku').value;
+        if(!currentMode) { alert("กรุณาเลือกโหมดก่อน"); return; }
+        
+        const sku = document.getElementById('sku').value.trim();
+        const qtyVal = document.getElementById('qty').value;
+        
+        // Validation หน้าบ้านก่อนส่ง
         if(!sku) { alert("กรุณาระบุรหัสสินค้า"); return; }
+        if(!qtyVal || Number(qtyVal) <= 0) { alert("จำนวนต้องมากกว่า 0"); return; }
 
         const btn = document.getElementById('btn-submit');
         const oldText = btn.innerText;
-        btn.innerText = "กำลังตรวจสอบ...";
-        btn.disabled = true;
+        btn.innerText = "กำลังประมวลผล...";
+        btn.disabled = true; // ป้องกันการกดรัวๆ
 
         const payload = {
             mode: currentMode,
             sku: sku,
-            qty: document.getElementById('qty').value,
+            qty: qtyVal,
             unit: document.getElementById('unit').value,
             ratio: document.getElementById('ratio').value,
             name: document.getElementById('item-name').value,
@@ -193,7 +199,7 @@
         };
 
         try {
-            // 🔥 ส่งแบบ text/plain เพื่อแก้ปัญหา CORS และรออ่าน Error
+            // ใช้ text/plain เพื่อให้ Apps Script อ่าน error ได้ง่ายๆ
             const response = await fetch(WEBHOOK_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -202,12 +208,9 @@
             
             const data = await response.json();
 
-            // 🛑 ถ้า Server ตอบกลับว่า error (ของหมด)
             if (data.status === 'error') {
-                alert("❌ เกิดข้อผิดพลาด: " + data.message); // เด้งเตือนตรงนี้!
-            } 
-            // ✅ ถ้าสำเร็จ
-            else {
+                alert("❌ เกิดข้อผิดพลาด: " + data.message); 
+            } else {
                 const logDiv = document.getElementById('log');
                 const time = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
                 const color = currentMode === 'IN' ? 'green' : (currentMode === 'OUT' ? 'red' : 'blue');
