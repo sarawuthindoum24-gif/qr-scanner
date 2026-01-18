@@ -3,176 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบคลังสินค้า Pro</title>
+    <title>ระบบคลังสินค้า (Final)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; margin: 0; padding: 15px; text-align: center; }
-        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 600px; margin: 0 auto; }
-        
-        h2 { margin-top: 0; color: #333; }
-
-        /* ปุ่มเลือกโหมด */
-        .mode-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
-        .mode-btn { 
-            padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; 
-            background: white; font-weight: bold; color: #666; cursor: pointer; transition: 0.2s; 
-            font-size: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .mode-btn i { font-size: 20px; margin-bottom: 4px; }
-        
-        .mode-btn.active-in { background-color: #d1e7dd; border-color: #0f5132; color: #0f5132; }
-        .mode-btn.active-out { background-color: #f8d7da; border-color: #842029; color: #842029; }
-        .mode-btn.active-new { background-color: #cfe2ff; border-color: #084298; color: #084298; }
-
-        /* ฟอร์ม */
-        .form-section { text-align: left; display: none; animation: fadeIn 0.3s; }
-        .form-group { margin-bottom: 12px; }
-        label { font-size: 14px; font-weight: bold; color: #444; display: block; margin-bottom: 4px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
-        input:focus, select:focus { outline: none; border-color: #0d6efd; }
-
-        /* กล้อง */
-        #reader { width: 100%; border-radius: 8px; overflow: hidden; display: none; margin-bottom: 15px; }
-        
-        /* ปุ่ม */
-        .btn-main { width: 100%; padding: 14px; font-size: 18px; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; opacity: 0.5; pointer-events: none; transition: 0.3s; }
-        .btn-active { opacity: 1; pointer-events: auto; }
-        
-        /* สีปุ่มตามโหมด */
-        .bg-in { background-color: #198754; }
-        .bg-out { background-color: #dc3545; }
-        .bg-new { background-color: #0d6efd; }
-
-        .log-box { margin-top: 20px; font-size: 12px; text-align: left; background: #fafafa; padding: 10px; border-radius: 6px; height: 100px; overflow-y: auto; border: 1px solid #eee; }
-        
-        /* Helper Classes */
+        body { font-family: 'Sarabun', sans-serif; background-color: #f4f6f8; padding: 20px; text-align: center; }
+        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; }
+        h2 { color: #333; margin-top: 0; }
+        .mode-btn { width: 30%; padding: 15px; margin: 5px; border-radius: 8px; border: 2px solid #ddd; font-weight: bold; cursor: pointer; background: white; }
+        .active-in { background: #d4edda; border-color: #28a745; color: #155724; }
+        .active-out { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .active-new { background: #cce5ff; border-color: #004085; color: #004085; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
         .hidden { display: none; }
-        .text-hint { font-size: 12px; color: #888; margin-top: 2px; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        #reader { width: 100%; margin-bottom: 10px; border-radius: 8px; display: none; }
+        .btn-submit { width: 100%; padding: 15px; font-size: 18px; color: white; background: #999; border: none; border-radius: 8px; cursor: not-allowed; pointer-events: none; margin-top: 15px; }
+        .ready { background: #28a745; cursor: pointer; pointer-events: auto; }
+        .ready-out { background: #dc3545; }
+        .ready-new { background: #007bff; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>🏭 จัดการคลังสินค้า</h2>
+    <h2>📦 ระบบจัดการสต็อก</h2>
 
-    <div class="mode-grid">
-        <button class="mode-btn" onclick="setMode('IN')" id="btn-in">📥<br>รับเข้า</button>
-        <button class="mode-btn" onclick="setMode('OUT')" id="btn-out">📤<br>จ่ายออก</button>
-        <button class="mode-btn" onclick="setMode('NEW')" id="btn-new">✨<br>สินค้าใหม่</button>
+    <div>
+        <button class="mode-btn" onclick="setMode('IN')" id="btn-in">📥 รับเข้า</button>
+        <button class="mode-btn" onclick="setMode('OUT')" id="btn-out">📤 จ่ายออก</button>
+        <button class="mode-btn" onclick="setMode('NEW')" id="btn-new">✨ เพิ่มใหม่</button>
     </div>
 
     <div id="reader"></div>
-    <button id="btn-camera" onclick="toggleCamera()" style="margin-bottom:15px; padding:8px; width:100%; border:1px solid #ddd; background:#fff; border-radius:6px; cursor:pointer; display:none;">📷 เปิด/ปิด กล้อง</button>
+    <button onclick="toggleCamera()" style="margin:10px 0; padding:8px; width:100%; cursor:pointer;">📷 เปิด/ปิด กล้อง</button>
 
-    <div id="main-form" class="form-section">
-        
-        <div class="form-group">
-            <label>รหัสสินค้า (SKU):</label>
-            <input type="text" id="sku" placeholder="สแกน หรือ พิมพ์..." autocomplete="off">
+    <div id="form-area" class="hidden">
+        <label style="display:block; text-align:left;">รหัสสินค้า (SKU/ชื่อ):</label>
+        <input type="text" id="sku" placeholder="สแกนหรือพิมพ์ชื่อสินค้า...">
+
+        <div id="new-item-fields" class="hidden">
+            <input type="text" id="item-name" placeholder="ชื่อสินค้า (เช่น แป้งโกกิ)">
+            <input type="number" id="ratio" placeholder="จำนวนย่อยต่อหน่วย (Conversion)" value="1">
         </div>
 
-        <div class="form-group hidden" id="group-name">
-            <label>ชื่อสินค้า:</label>
-            <input type="text" id="item-name" placeholder="ระบุชื่อเรียกสินค้า...">
+        <div style="display:flex; gap:10px;">
+            <div style="flex:1;">
+                <label style="display:block; text-align:left;">จำนวน:</label>
+                <input type="number" id="qty" value="1">
+            </div>
+            <div style="flex:1;">
+                <label style="display:block; text-align:left;">หน่วย:</label>
+                <select id="unit">
+                    <option value="ชิ้น">ชิ้น</option>
+                    <option value="ลัง">ลัง</option>
+                    <option value="ถุง">ถุง</option>
+                    <option value="กก.">กก.</option>
+                    <option value="กระสอบ">กระสอบ</option>
+                </select>
+            </div>
         </div>
 
-        <div class="form-group hidden" id="group-unit">
-            <label>หน่วยนับ:</label>
-            <select id="unit">
-                <option value="ชิ้น">ชิ้น (พื้นฐาน)</option>
-                <option value="กระสอบ">กระสอบ</option>
-                <option value="ลัง">ลัง</option>
-                <option value="มัด">มัด</option>
-                <option value="กิโลกรัม">กิโลกรัม</option>
-                <option value="ขวด">ขวด</option>
-                <option value="ลิตร">ลิตร</option>
-                <option value="ถุง">ถุง</option>
-                <option value="แกลลอน">แกลลอน</option>
-                <option value="ซอง">ซอง</option>
-            </select>
-        </div>
+        <label style="display:block; text-align:left; margin-top:10px;">ผู้ทำรายการ:</label>
+        <input type="text" id="user" value="Admin" style="background:#f9f9f9; font-weight:bold;">
 
-        <div class="form-group hidden" id="group-ratio">
-            <label>อัตราส่วนการแปลง (Conversion):</label>
-            <input type="number" id="ratio" value="1" min="1">
-            <div class="text-hint">เช่น 1 ลัง มี 12 ชิ้น ให้ใส่ 12 (ถ้าเป็นหน่วยย่อยสุดใส่ 1)</div>
-        </div>
-
-        <div class="form-group">
-            <label id="qty-label">จำนวน:</label>
-            <input type="number" id="qty" value="1" min="1">
-        </div>
-
-        <div class="form-group">
-            <label>ผู้ทำรายการ:</label>
-            <input type="text" id="user" value="Admin">
-        </div>
-
-        <button id="btn-submit" class="btn-main" onclick="submitData()">กรุณาเลือกโหมด</button>
+        <button id="btn-submit" class="btn-submit" onclick="submitData()">กรุณาเลือกโหมด</button>
     </div>
-
-    <div class="log-box" id="log">📝 ประวัติการทำงาน...</div>
+    
+    <div id="log" style="margin-top:20px; font-size:12px; color:#666;"></div>
 </div>
 
 <script>
-    // ⚠️⚠️⚠️ วางลิงก์ Web App URL ของคุณที่นี่ ⚠️⚠️⚠️
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwR9dIM7VlSIzZlHnGpDPTHg4cCUZ4blwrS0BOpTuPWrzTuJQ1j9i3wJBAz2ach37R8/exec"; 
+    // 👇👇👇 วางลิงก์ใหม่ของคุณตรงนี้เท่านั้น 👇👇👇
+    const WEBHOOK_URL = "https://script.google.com/macros/s/xxxxxxxxx/exec"; 
     // -----------------------------------------------------
 
     let currentMode = null;
     let html5QrcodeScanner = null;
 
-    function log(msg, color='black') {
-        const logBox = document.getElementById('log');
-        const time = new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
-        logBox.innerHTML = `<div style="color:${color}; border-bottom:1px solid #eee; padding:4px;">[${time}] ${msg}</div>` + logBox.innerHTML;
-    }
-
     function setMode(mode) {
         currentMode = mode;
-        
-        // Reset Style ปุ่ม
         document.querySelectorAll('.mode-btn').forEach(b => b.className = 'mode-btn');
-        document.getElementById(`btn-${mode.toLowerCase()}`).classList.add(`active-${mode.toLowerCase()}`);
+        document.getElementById('btn-' + mode.toLowerCase()).classList.add('active-' + mode.toLowerCase());
+        
+        document.getElementById('form-area').classList.remove('hidden');
+        document.getElementById('new-item-fields').className = mode === 'NEW' ? '' : 'hidden';
 
-        // แสดงฟอร์มและปุ่มกล้อง
-        document.getElementById('main-form').style.display = 'block';
-        document.getElementById('btn-camera').style.display = 'block';
-
-        // จัดการ Input ตามโหมด
-        const groupName = document.getElementById('group-name');
-        const groupUnit = document.getElementById('group-unit');
-        const groupRatio = document.getElementById('group-ratio');
-        const btnSubmit = document.getElementById('btn-submit');
-
-        // Reset ค่าเบื้องต้น
-        groupName.classList.add('hidden');
-        groupUnit.classList.add('hidden');
-        groupRatio.classList.add('hidden');
-        btnSubmit.className = 'btn-main btn-active';
-
-        if (mode === 'IN') {
-            // รับเข้า: SKU + จำนวน
-            btnSubmit.innerText = 'ยืนยัน "รับสินค้าเข้า" (IN)';
-            btnSubmit.classList.add('bg-in');
-        } 
-        else if (mode === 'OUT') {
-            // จ่ายออก: SKU + จำนวน + หน่วย (เพื่อตัดสต็อก)
-            groupUnit.classList.remove('hidden');
-            btnSubmit.innerText = 'ยืนยัน "จ่ายสินค้าออก" (OUT)';
-            btnSubmit.classList.add('bg-out');
-        } 
-        else if (mode === 'NEW') {
-            // เพิ่มใหม่: SKU + ชื่อ + หน่วย + Ratio + จำนวนตั้งต้น
-            groupName.classList.remove('hidden');
-            groupUnit.classList.remove('hidden');
-            groupRatio.classList.remove('hidden');
-            btnSubmit.innerText = 'บันทึก "สินค้าใหม่" (NEW)';
-            btnSubmit.classList.add('bg-new');
-        }
+        const btn = document.getElementById('btn-submit');
+        btn.className = `btn-submit ready ready-${mode.toLowerCase()}`;
+        btn.innerText = `ยืนยัน ${mode}`;
     }
 
     function toggleCamera() {
@@ -185,64 +103,49 @@
             html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
             html5QrcodeScanner.render((text) => {
                 document.getElementById('sku').value = text;
-                log(`📷 สแกน: ${text}`, 'blue');
-                if(navigator.vibrate) navigator.vibrate(100);
+                alert("สแกนแล้ว: " + text);
             });
         }
     }
 
     async function submitData() {
-        if (!currentMode) return alert("กรุณาเลือกโหมด");
-
-        const payload = {
-            mode: currentMode,
-            sku: document.getElementById('sku').value.trim(),
-            qty: document.getElementById('qty').value,
-            user: document.getElementById('user').value,
-            // ข้อมูลเพิ่มเติม
-            name: document.getElementById('item-name').value.trim(),
-            unit: document.getElementById('unit').value,
-            ratio: document.getElementById('ratio').value // อัตราส่วนแปลงหน่วย
-        };
-
-        if (!payload.sku) return alert("❌ กรุณาระบุรหัสสินค้า (SKU)");
-        if (currentMode === 'NEW' && !payload.name) return alert("❌ กรุณาระบุชื่อสินค้า");
-
+        if(!currentMode) return;
+        
         const btn = document.getElementById('btn-submit');
         const oldText = btn.innerText;
-        btn.innerText = "⏳ กำลังบันทึก...";
-        btn.style.opacity = "0.7";
+        btn.innerText = "กำลังบันทึก...";
+        btn.style.opacity = 0.5;
+
+        // ⚠️ รวบรวมข้อมูลส่งไปหลังบ้าน
+        const payload = {
+            mode: currentMode,
+            sku: document.getElementById('sku').value,
+            qty: document.getElementById('qty').value,
+            unit: document.getElementById('unit').value,
+            ratio: document.getElementById('ratio').value,
+            name: document.getElementById('item-name').value,
+            user: document.getElementById('user').value // <--- บรรทัดนี้สำคัญมาก! ถ้าไม่มี ชื่อจะไม่ไป
+        };
 
         try {
-            // ส่งข้อมูลไป Google Apps Script
             await fetch(WEBHOOK_URL, {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
-
-            // *เนื่องจาก no-cors เราจะสรุปว่าสำเร็จถ้าร้องขอไปได้
-            log(`✅ บันทึก ${currentMode}: ${payload.sku} (${payload.qty})`, 'green');
             
-            // เคลียร์ค่าบางช่อง
+            document.getElementById('log').innerHTML = `✅ บันทึก ${payload.sku} เรียบร้อย`;
             document.getElementById('sku').value = "";
-            document.getElementById('item-name').value = "";
             document.getElementById('qty').value = "1";
-
-        } catch (error) {
-            log(`❌ Error: ${error.message}`, 'red');
-            alert("เกิดข้อผิดพลาดในการส่งข้อมูล");
+        } catch(e) {
+            alert("Error: " + e.message);
         }
-
+        
         btn.innerText = oldText;
-        btn.style.opacity = "1";
+        btn.style.opacity = 1;
     }
 </script>
 
 </body>
 </html>
-
-
-
-
