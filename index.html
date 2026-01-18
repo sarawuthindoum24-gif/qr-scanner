@@ -8,105 +8,164 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     
     <style>
-        /* 🎨 THEME SETTING: สุกี้ตี๋น้อย */
+        /* 🎨 THEME: Suki Teenoi Red & Gold */
         :root {
-            --teenoi-red: #b30000;       /* สีแดงเข้ม */
-            --teenoi-red-light: #d90000; /* สีแดงสด */
-            --teenoi-gold: #ffcc00;      /* สีทอง */
-            --bg-color: #fff5f5;         /* พื้นหลังอมชมพูจางๆ */
+            --teenoi-red: #CE1126;       /* แดงหลัก */
+            --teenoi-dark: #8B0000;      /* แดงเลือดหมู */
+            --teenoi-gold: #FDB913;      /* เหลืองทอง */
+            --bg-color: #FDF2F2;         /* พื้นหลังชมพูจางๆ */
         }
 
-        body { font-family: 'Sarabun', sans-serif; background-color: var(--bg-color); padding: 15px; margin: 0; text-align: center; color: #333; }
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background-color: var(--bg-color); 
+            padding: 15px; 
+            margin: 0; 
+            text-align: center; 
+            color: #333; 
+        }
         
         .container { 
             background: white; 
             border-radius: 20px; 
-            box-shadow: 0 8px 20px rgba(179, 0, 0, 0.15); 
+            box-shadow: 0 10px 30px rgba(206, 17, 38, 0.2); 
             max-width: 600px; 
             margin: 0 auto; 
             overflow: hidden;
+            border: 1px solid #ffecec;
         }
         
-        /* 🔥 HEADER ดีไซน์ใหม่ */
+        /* 🔥 HEADER: ดีไซน์ใหม่ แดงคาดทอง */
         .header-section { 
-            background: linear-gradient(180deg, var(--teenoi-red) 0%, var(--teenoi-red-light) 100%);
-            padding: 25px 15px;
+            background: linear-gradient(135deg, var(--teenoi-red) 0%, var(--teenoi-dark) 100%);
+            padding: 30px 20px;
             color: white;
-            border-bottom: 5px solid var(--teenoi-gold);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-bottom: 6px solid var(--teenoi-gold);
+            position: relative;
+        }
+        
+        /* เงาพื้นหลังเพื่อให้โลโก้เด่น */
+        .header-section::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
         }
         
         .app-logo { 
-            width: 140px; 
-            height: 140px; /* บังคับความสูงให้เท่ากันเพื่อความเป็นวงกลม */
-            object-fit: contain; /* ปรับรูปให้พอดีกรอบ */
-            margin-bottom: 10px; 
+            width: 130px; 
+            height: 130px; 
+            object-fit: contain; 
+            margin-bottom: 12px; 
             background: white; 
             border-radius: 50%; 
-            padding: 5px;
-            border: 3px solid var(--teenoi-gold);
+            padding: 8px;
+            border: 4px solid var(--teenoi-gold);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
         
-        h2 { margin: 0; font-size: 22px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+        h2 { 
+            margin: 0; 
+            font-size: 24px; 
+            font-weight: 700; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 0.5px;
+        }
         
-        .content-body { padding: 20px; }
+        .content-body { padding: 25px 20px; }
 
-        .mode-container { display: flex; gap: 8px; margin-bottom: 20px; }
+        /* ปุ่มโหมด */
+        .mode-container { display: flex; gap: 10px; margin-bottom: 25px; }
         .mode-btn { 
-            flex: 1; padding: 12px 5px; border-radius: 12px; 
-            border: 1px solid #ddd; font-weight: bold; cursor: pointer; 
+            flex: 1; padding: 12px; border-radius: 12px; 
+            border: 2px solid #eee; font-weight: bold; cursor: pointer; 
             background: white; font-size: 14px; color: #666;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
         
-        .active-in { background: #e8f5e9; border: 2px solid #28a745; color: #155724; }
-        .active-out { background: #ffebee; border: 2px solid var(--teenoi-red); color: var(--teenoi-red); }
-        .active-new { background: #e3f2fd; border: 2px solid #007bff; color: #004085; }
+        /* Active States (เน้นสีแดง) */
+        .active-in { 
+            background: #e8f5e9; border-color: #28a745; color: #155724; 
+            transform: translateY(-2px); box-shadow: 0 4px 8px rgba(40,167,69,0.2);
+        }
+        .active-out { 
+            background: #ffebee; border-color: var(--teenoi-red); color: var(--teenoi-red); 
+            transform: translateY(-2px); box-shadow: 0 4px 8px rgba(206,17,38,0.2);
+        }
+        .active-new { 
+            background: #e3f2fd; border-color: #007bff; color: #004085; 
+            transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,123,255,0.2);
+        }
         
+        /* ฟอร์ม */
         input, select { 
-            width: 100%; padding: 12px; margin: 8px 0; 
-            border: 1px solid #ddd; border-radius: 10px; 
+            width: 100%; padding: 14px; margin: 8px 0; 
+            border: 2px solid #eee; border-radius: 12px; 
             box-sizing: border-box; font-size: 16px; 
             background-color: #fafafa;
+            transition: 0.3s;
         }
-        input:focus, select:focus { outline: none; border-color: var(--teenoi-red); background-color: #fff; }
+        input:focus, select:focus { 
+            outline: none; border-color: var(--teenoi-red); 
+            background-color: #fff; 
+            box-shadow: 0 0 0 4px rgba(206,17,38,0.1);
+        }
 
-        .info-display { background-color: #f2f2f2; border: 1px solid #ddd; color: #555; font-weight: bold; cursor: not-allowed; }
+        .info-display { 
+            background-color: #f8f9fa; border-color: #ddd; 
+            color: #444; font-weight: bold; cursor: default;
+        }
         .hidden { display: none !important; }
         
         .form-section { 
-            background: #fff; border: 1px solid #eee;
-            padding: 15px; border-radius: 12px; margin-bottom: 15px; 
-            text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            background: #fff; border: 1px solid #f0f0f0;
+            padding: 20px; border-radius: 15px; margin-bottom: 20px; 
+            text-align: left; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         }
-        .form-label { font-weight: bold; font-size: 14px; color: var(--teenoi-red); margin-top: 5px; display: block; }
+        .form-label { 
+            font-weight: 700; font-size: 15px; 
+            color: var(--teenoi-red); margin-top: 5px; display: block; 
+        }
         
-        #reader { width: 100%; margin-bottom: 10px; border-radius: 12px; overflow: hidden; display: none; background: #000; border: 3px solid var(--teenoi-red); }
+        #reader { 
+            width: 100%; margin-bottom: 15px; border-radius: 15px; 
+            overflow: hidden; display: none; background: #000; 
+            border: 4px solid var(--teenoi-gold); 
+        }
         
+        /* ปุ่มยืนยัน (Main Button) */
         .btn-submit { 
-            width: 100%; padding: 14px; font-size: 18px; color: white; 
+            width: 100%; padding: 16px; font-size: 18px; color: white; 
             background: #ccc; border: none; border-radius: 12px; 
-            cursor: not-allowed; margin-top: 10px; font-weight: bold; 
+            cursor: not-allowed; margin-top: 15px; font-weight: 700; 
             box-shadow: 0 4px 0 rgba(0,0,0,0.1);
             transition: all 0.2s;
         }
         
         .ready-in { background: #28a745; box-shadow: 0 4px 0 #1e7e34; }
-        .ready-out { background: var(--teenoi-red); box-shadow: 0 4px 0 #8a0000; }
+        .ready-out { background: var(--teenoi-red); box-shadow: 0 4px 0 #990d1c; } /* สีแดงตี๋น้อย */
         .ready-new { background: #007bff; box-shadow: 0 4px 0 #0056b3; }
+        
         .btn-submit:active { transform: translateY(4px); box-shadow: none !important; }
         
+        /* ปุ่มกล้อง */
         .camera-btn {
-            width:100%; padding:10px; cursor:pointer; 
-            background:#fff; color: var(--teenoi-red);
+            width:100%; padding:12px; cursor:pointer; 
+            background: #fff; color: var(--teenoi-red);
             border: 2px solid var(--teenoi-red); 
-            border-radius:10px; margin-bottom:15px; font-weight: bold;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+            border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 16px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: 0.2s;
         }
-        .camera-btn:hover { background: #fff5f5; }
+        .camera-btn:hover { background: #fff5f5; transform: translateY(-2px); }
 
-        #log { margin-top: 20px; text-align: left; font-size: 13px; max-height: 150px; overflow-y: auto; border-top: 2px dashed #eee; padding-top: 10px; }
-        .log-item { padding: 6px 0; border-bottom: 1px solid #f9f9f9; }
+        #log { 
+            margin-top: 25px; text-align: left; font-size: 14px; 
+            max-height: 200px; overflow-y: auto; 
+            border-top: 2px dashed #e0e0e0; padding-top: 15px; 
+        }
+        .log-item { padding: 8px 0; border-bottom: 1px solid #f9f9f9; }
     </style>
 </head>
 <body>
@@ -114,10 +173,9 @@
 <div class="container">
     
     <div class="header-section">
-        <img src="https://drive.google.com/thumbnail?id=1pJv1ltq9eVPWYabYWWub9S3fR4QC4UuE&sz=w500" 
-             alt="Suki Teenoi Logo" 
-             class="app-logo"
-             onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Suki_Teenoi_Logo.png/600px-Suki_Teenoi_Logo.png';">
+        <img src="https://drive.google.com/thumbnail?id=1pJv1ltq9eVPWYabYWWub9S3fR4QC4UuE&sz=w400" 
+             alt="Suki Teenoi" 
+             class="app-logo">
         <h2>ระบบจัดการคลังแห้ง/สิ้นเปลือง</h2>
     </div>
 
@@ -136,7 +194,7 @@
                 <span class="form-label">รหัสสินค้า (SKU):</span>
                 <input type="text" id="sku" placeholder="สแกน หรือ พิมพ์..." onchange="searchProduct()">
                 
-                <span class="form-label" style="color:#555;">ชื่อสินค้า:</span>
+                <span class="form-label" style="color:#666;">ชื่อสินค้า:</span>
                 <input type="text" id="name-display" class="info-display" readonly placeholder="...">
             </div>
         </div>
@@ -190,8 +248,8 @@
 </div>
 
 <script>
-    // 👇👇👇 ⚠️ อย่าลืมเช็คลิงก์ Web App URL อีกครั้งนะครับ 👇👇👇
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz0QnI98PipL0MTXFDqPzpEgzOc9oLl8mjA4NezLLS0oQZvBFl_b7SLaLgc_PtKsDHw/exec"; 
+    // 👇👇👇 ⚠️ อย่าลืมใส่ลิงก์ Web App URL ของคุณตรงนี้! ⚠️ 👇👇👇
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz_XXXXXXXXXXXX/exec"; 
     // -------------------------------------------------------------
 
     let currentMode = null;
@@ -213,7 +271,12 @@
 
         const btn = document.getElementById('btn-submit');
         btn.className = `btn-submit ready-${mode.toLowerCase()}`;
-        let txt = mode==='IN'?'ยืนยัน "รับเข้า (IN)"':(mode==='OUT'?'ยืนยัน "จ่ายออก (OUT)"':'ยืนยัน "สินค้าใหม่"');
+        
+        let txt = "";
+        if(mode === 'IN') txt = 'ยืนยัน "รับเข้า (IN)"';
+        else if(mode === 'OUT') txt = 'ยืนยัน "จ่ายออก (OUT)"';
+        else txt = 'ยืนยัน "สินค้าใหม่"';
+        
         btn.innerText = txt;
         btn.disabled = false;
     }
@@ -296,7 +359,7 @@
                 logDiv.innerHTML = `<div class="log-item" style="color:red; font-weight:bold;">[${time}] ❌ ${data.message}</div>` + logDiv.innerHTML;
             } else {
                 alert("✅ " + data.message);
-                let color = currentMode === 'IN' ? '#28a745' : (currentMode === 'OUT' ? '#b30000' : '#007bff');
+                let color = currentMode === 'IN' ? '#28a745' : (currentMode === 'OUT' ? '#CE1126' : '#007bff');
                 logDiv.innerHTML = `<div class="log-item" style="color:${color}; font-weight:bold;">[${time}] ✅ ${data.message}</div>` + logDiv.innerHTML;
                 
                 document.getElementById('sku').value = ""; document.getElementById('new-sku').value = "";
