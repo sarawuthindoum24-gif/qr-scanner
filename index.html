@@ -11,10 +11,10 @@
         body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; padding: 10px; margin: 0; text-align: center; color: #333; }
         .container { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 600px; margin: 0 auto; }
         
-        /* Style สำหรับ Header (Logo + Title) */
+        /* Header & Logo */
         .header-section { margin-bottom: 20px; }
-        .app-logo { width: 120px; height: auto; margin-bottom: 10px; }
-        h2 { margin: 0; color: #CE1126; font-size: 22px; font-weight: bold; } /* สีแดงตี๋น้อย */
+        .app-logo { width: 150px; height: auto; margin-bottom: 10px; border-radius: 10px; } /* ปรับขนาดโลโก้ */
+        h2 { margin: 0; color: #CE1126; font-size: 22px; font-weight: bold; }
         
         .mode-container { display: flex; gap: 8px; margin-bottom: 15px; }
         .mode-btn { flex: 1; padding: 10px; border-radius: 8px; border: 2px solid #e0e0e0; font-weight: bold; cursor: pointer; background: white; font-size: 14px; }
@@ -26,7 +26,6 @@
         .info-display { background-color: #e9ecef; border: 1px solid #ced4da; color: #495057; font-weight: bold; cursor: not-allowed; }
         .hidden { display: none !important; }
         
-        /* จัดกลุ่มฟอร์ม */
         .form-section { background: #f9f9f9; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; text-align: left; }
         .form-label { font-weight: bold; font-size: 14px; color: #555; margin-top: 5px; display: block; }
         
@@ -46,9 +45,10 @@
 <div class="container">
     
     <div class="header-section">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Suki_Teenoi_Logo.png/600px-Suki_Teenoi_Logo.png" alt="Suki Teenoi Logo" class="app-logo">
+        <img id="logo-img" src="" alt="Suki Teenoi Logo" class="app-logo">
         <h2>ระบบจัดการคลังแห้ง/สิ้นเปลือง</h2>
     </div>
+
     <div class="mode-container">
         <button class="mode-btn" onclick="setMode('IN')" id="btn-in">📥 รับเข้า</button>
         <button class="mode-btn" onclick="setMode('OUT')" id="btn-out">📤 จ่ายออก</button>
@@ -58,16 +58,13 @@
     <div id="group-scan">
         <div id="reader"></div>
         <button onclick="toggleCamera()" style="width:100%; padding:8px; cursor:pointer; background:#f8f9fa; border:1px solid #ddd; border-radius:8px; margin-bottom:10px;">📷 เปิด/ปิด กล้อง</button>
-        
         <span class="form-label">รหัสสินค้า (SKU):</span>
         <input type="text" id="sku" placeholder="สแกน หรือ พิมพ์..." onchange="searchProduct()">
-        
         <span class="form-label" style="color:#007bff;">ชื่อสินค้า:</span>
         <input type="text" id="name-display" class="info-display" readonly placeholder="...">
     </div>
 
     <div id="form-area" class="hidden">
-        
         <div id="group-new" class="hidden">
             <div class="form-section">
                 <span class="form-label" style="color:#004085;">1. ข้อมูลหลัก</span>
@@ -75,18 +72,13 @@
                 <input type="text" id="item-name" placeholder="ชื่อสินค้า (Description)">
                 <input type="text" id="new-barcode" placeholder="บาร์โค้ด (ถ้ามี)">
             </div>
-            
             <div class="form-section">
                 <span class="form-label" style="color:#004085;">2. หน่วยและการคำนวณ</span>
                 <div style="display:flex; gap:5px;">
-                    <div style="flex:1;">
-                        <input type="number" id="new-ratio" placeholder="ตัวคูณ (Convert)" value="1">
-                    </div>
-                    <div style="flex:1;">
-                        <input type="text" id="new-sap-unit" placeholder="หน่วย SAP (เช่น กก.)">
-                    </div>
+                    <div style="flex:1;"><input type="number" id="new-ratio" placeholder="ตัวคูณ" value="1"></div>
+                    <div style="flex:1;"><input type="text" id="new-sap-unit" placeholder="หน่วย SAP"></div>
                 </div>
-                <input type="text" id="new-detail" placeholder="รายละเอียดหน่วย (เช่น ลัง/10ถุง)">
+                <input type="text" id="new-detail" placeholder="รายละเอียดหน่วย">
                 <input type="number" id="new-weight" placeholder="น้ำหนัก (KG)">
             </div>
         </div>
@@ -94,9 +86,7 @@
         <div class="form-section">
             <span class="form-label">จำนวนและหน่วย (Stock):</span>
             <div style="display:flex; gap:5px;">
-                <div style="flex:1;">
-                    <input type="number" id="qty" value="1">
-                </div>
+                <div style="flex:1;"><input type="number" id="qty" value="1"></div>
                 <div style="flex:1;">
                     <select id="unit">
                         <option value="ลัง">ลัง</option>
@@ -115,7 +105,6 @@
 
         <span class="form-label">ผู้ทำรายการ:</span>
         <input type="text" id="user" value="Admin" placeholder="ระบุชื่อ">
-
         <button id="btn-submit" class="btn-submit" onclick="submitData()">กรุณาเลือกโหมด</button>
     </div>
     
@@ -123,9 +112,32 @@
 </div>
 
 <script>
-    // 👇👇👇 ใส่ลิงก์ Web App URL ใหม่ตรงนี้ 👇👇👇
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz0QnI98PipL0MTXFDqPzpEgzOc9oLl8mjA4NezLLS0oQZvBFl_b7SLaLgc_PtKsDHw/exec"; 
-    // -----------------------------------------------------
+    // 👇👇👇 1. เอาลิงก์ "คัดลอกลิงก์" จาก Google Drive มาวางตรงนี้ได้เลย (ไม่ต้องแก้ ID เอง) 👇👇👇
+    const GOOGLE_DRIVE_LINK = "วางลิงก์_GOOGLE_DRIVE_ที่นี่"; 
+    // ตัวอย่าง: "https://drive.google.com/file/d/1A2b3C.../view?usp=sharing"
+    
+    // 👇👇👇 2. ใส่ลิงก์ Web App URL ของคุณตรงนี้ 👇👇👇
+    const WEBHOOK_URL = "https://script.google.com/macros/s/XXXX_CHANGE_ME_XXXX/exec"; 
+
+
+    // --- ระบบแปลงลิงก์รูปอัตโนมัติ ---
+    try {
+        let fileId = "";
+        // พยายามดึง ID จากลิงก์รูปแบบต่างๆ
+        if(GOOGLE_DRIVE_LINK.includes("/file/d/")) {
+            fileId = GOOGLE_DRIVE_LINK.split("/file/d/")[1].split("/")[0];
+        } else if (GOOGLE_DRIVE_LINK.includes("id=")) {
+            fileId = GOOGLE_DRIVE_LINK.split("id=")[1].split("&")[0];
+        }
+        
+        if(fileId) {
+            document.getElementById('logo-img').src = "https://drive.google.com/file/d/1pJv1ltq9eVPWYabYWWub9S3fR4QC4UuE" + fileId;
+        } else {
+            // ถ้าไม่มีลิงก์ ให้ใช้รูปสำรอง
+            document.getElementById('logo-img').src = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Suki_Teenoi_Logo.png/600px-Suki_Teenoi_Logo.png";
+        }
+    } catch(e) { console.log("Logo Error"); }
+    // ----------------------------------
 
     let currentMode = null;
     let html5QrcodeScanner = null;
@@ -134,7 +146,6 @@
         currentMode = mode;
         document.querySelectorAll('.mode-btn').forEach(b => b.className = 'mode-btn');
         document.getElementById('btn-' + mode.toLowerCase()).classList.add('active-' + mode.toLowerCase());
-        
         document.getElementById('form-area').classList.remove('hidden');
 
         if (mode === 'NEW') {
@@ -155,36 +166,23 @@
     async function searchProduct() {
         const sku = document.getElementById('sku').value.trim();
         if(!sku || currentMode === 'NEW') return;
-
         const nameDisplay = document.getElementById('name-display');
-        nameDisplay.value = "🔍...";
-        nameDisplay.style.color = "orange";
-
+        nameDisplay.value = "🔍..."; nameDisplay.style.color = "orange";
         try {
             const response = await fetch(WEBHOOK_URL + "?mode=SEARCH&sku=" + encodeURIComponent(sku));
             const data = await response.json();
-
             if(data.status === 'success') {
-                nameDisplay.value = data.name;
-                nameDisplay.style.color = "green";
+                nameDisplay.value = data.name; nameDisplay.style.color = "green";
                 const unitSelect = document.getElementById('unit');
                 let found = false;
                 for(let i=0; i<unitSelect.options.length; i++){
-                    if(unitSelect.options[i].value === data.unit) {
-                        unitSelect.selectedIndex = i;
-                        found = true;
-                        break;
-                    }
+                    if(unitSelect.options[i].value === data.unit) { unitSelect.selectedIndex = i; found = true; break; }
                 }
                 if(!found && data.unit) {
-                    let opt = document.createElement('option');
-                    opt.value = data.unit; opt.innerHTML = data.unit;
+                    let opt = document.createElement('option'); opt.value = data.unit; opt.innerHTML = data.unit;
                     unitSelect.appendChild(opt); unitSelect.value = data.unit;
                 }
-            } else {
-                nameDisplay.value = "❌ ไม่พบ";
-                nameDisplay.style.color = "red";
-            }
+            } else { nameDisplay.value = "❌ ไม่พบ"; nameDisplay.style.color = "red"; }
         } catch(e) { nameDisplay.value = "⚠️ Error"; }
     }
 
@@ -207,7 +205,6 @@
 
     async function submitData() {
         if(!currentMode) { alert("กรุณาเลือกโหมด"); return; }
-        
         let finalSku = (currentMode === 'NEW') ? document.getElementById('new-sku').value.trim() : document.getElementById('sku').value.trim();
         const qtyVal = document.getElementById('qty').value;
         
@@ -216,14 +213,10 @@
         if(currentMode === 'NEW' && !document.getElementById('item-name').value.trim()) { alert("กรุณาระบุชื่อสินค้า"); return; }
 
         const btn = document.getElementById('btn-submit');
-        const oldText = btn.innerText;
-        btn.innerText = "Processing...";
-        btn.disabled = true;
+        const oldText = btn.innerText; btn.innerText = "Processing..."; btn.disabled = true;
 
         const payload = {
-            mode: currentMode,
-            sku: finalSku,
-            qty: qtyVal,
+            mode: currentMode, sku: finalSku, qty: qtyVal,
             unit: document.getElementById('unit').value,
             ratio: document.getElementById('new-ratio').value,
             name: document.getElementById('item-name').value,
@@ -236,35 +229,25 @@
 
         try {
             const response = await fetch(WEBHOOK_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify(payload)
+                method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload)
             });
-            
             const data = await response.json();
             const logDiv = document.getElementById('log');
             const time = new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'});
 
-            if (data.status === 'error') {
-                alert("❌ " + data.message); 
-            } else if (data.status === 'error_log') {
+            if (data.status === 'error') { alert("❌ " + data.message); } 
+            else if (data.status === 'error_log') {
                 alert("❌ " + data.message);
                 logDiv.innerHTML = `<div class="log-item" style="color:red;">[${time}] ❌ ${data.message}</div>` + logDiv.innerHTML;
             } else {
                 alert("✅ " + data.message);
                 let color = currentMode === 'IN' ? 'green' : (currentMode === 'OUT' ? 'blue' : 'orange');
                 logDiv.innerHTML = `<div class="log-item" style="color:${color}">[${time}] ✅ ${data.message}</div>` + logDiv.innerHTML;
-                
-                // Reset Forms
-                document.getElementById('sku').value = "";
-                document.getElementById('new-sku').value = "";
-                document.getElementById('item-name').value = "";
-                document.getElementById('new-barcode').value = "";
-                document.getElementById('new-weight').value = "";
-                document.getElementById('new-detail').value = "";
+                document.getElementById('sku').value = ""; document.getElementById('new-sku').value = "";
+                document.getElementById('item-name').value = ""; document.getElementById('new-barcode').value = "";
+                document.getElementById('new-weight').value = ""; document.getElementById('new-detail').value = "";
                 document.getElementById('name-display').value = "";
             }
-
         } catch(e) { alert("Connection Error"); } 
         finally { btn.innerText = oldText; btn.disabled = false; }
     }
