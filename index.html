@@ -32,7 +32,7 @@
             max-height: calc(100vh - 20px);
         }
         
-        /* 🔥 HEADER: โลโก้ซ้าย + ชื่อกลาง */
+        /* HEADER */
         .header-section { 
             background: linear-gradient(135deg, var(--teenoi-red) 0%, var(--teenoi-dark) 100%);
             padding: 12px 15px; color: white;
@@ -78,6 +78,9 @@
         }
         input:focus, select:focus { outline: none; border-color: var(--teenoi-red); background-color: #fff; }
 
+        /* Placeholder สีเทา */
+        ::placeholder { color: #aaa; opacity: 1; }
+
         .info-display { background-color: #f8f9fa; border-color: #ddd; color: #444; font-weight: bold; }
         .hidden { display: none !important; }
         
@@ -101,6 +104,7 @@
         .ready-in { background: #28a745; box-shadow: 0 3px 0 #1e7e34; }
         .ready-out { background: var(--teenoi-red); box-shadow: 0 3px 0 #990d1c; }
         .ready-new { background: #007bff; box-shadow: 0 3px 0 #0056b3; }
+        .btn-submit:active { transform: translateY(3px); box-shadow: none !important; }
         
         .camera-btn {
             width:100%; padding: 8px; cursor:pointer; background: #fff; color: var(--teenoi-red);
@@ -124,7 +128,8 @@
         <div class="header-title">
             <h2>ระบบจัดการคลังแห้ง/สิ้นเปลือง</h2>
         </div>
-        <div style="width: 55px;"></div> </div>
+        <div style="width: 55px;"></div>
+    </div>
 
     <div class="content-body">
         <div class="mode-container">
@@ -189,7 +194,7 @@
                     </div>
                 </div>
                 <div style="margin-top: 8px;">
-                    <input type="text" id="user" value="Admin" placeholder="ผู้ทำรายการ (ระบุชื่อ)" style="text-align: center; background: #fff;">
+                    <input type="text" id="user" value="" placeholder="ระบุชื่อผู้ทำรายการ (จำเป็น)..." style="text-align: center; background: #fff; border: 2px solid #ddd;">
                 </div>
             </div>
 
@@ -201,8 +206,7 @@
 </div>
 
 <script>
-    // 👇👇👇 ⚠️ สำคัญมาก! ต้องใช้ Web App URL ล่าสุดจากการ Deploy เท่านั้น ⚠️ 👇👇👇
-    // ต้องลงท้ายด้วย /exec (ห้ามใช้ link /edit)
+    // 👇👇👇 ⚠️ อย่าลืมใส่ลิงก์ Web App URL ตรงนี้ (เช็คให้ชัวร์นะครับ) ⚠️ 👇👇👇
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz0QnI98PipL0MTXFDqPzpEgzOc9oLl8mjA4NezLLS0oQZvBFl_b7SLaLgc_PtKsDHw/exec"; 
     // -------------------------------------------------------------
 
@@ -255,10 +259,7 @@
                     unitSelect.appendChild(opt); unitSelect.value = data.unit;
                 }
             } else { nameDisplay.value = "❌ ไม่พบสินค้า"; nameDisplay.style.color = "red"; }
-        } catch(e) { 
-            nameDisplay.value = "⚠️ เชื่อมต่อไม่ได้"; 
-            nameDisplay.style.color = "red";
-        }
+        } catch(e) { nameDisplay.value = "⚠️ เชื่อมต่อไม่ได้"; }
     }
 
     function toggleCamera() {
@@ -281,10 +282,15 @@
     async function submitData() {
         if(!currentMode) { alert("กรุณาเลือกโหมด"); return; }
         
-        // เช็คลิงก์ก่อนส่ง
-        if (WEBHOOK_URL.includes("XXXX")) {
-            alert("⚠️ คุณยังไม่ได้ใส่ลิงก์ Web App URL ในโค้ดบรรทัดล่างสุดครับ!");
-            return;
+        // 🔥 VALIDATION: ตรวจสอบชื่อผู้ทำรายการ
+        const userVal = document.getElementById('user').value.trim();
+        if (!userVal) {
+            alert("⚠️ กรุณาระบุ 'ชื่อผู้ทำรายการ' ก่อนยืนยันครับ!");
+            document.getElementById('user').focus(); // โฟกัสไปที่ช่องชื่อ
+            document.getElementById('user').style.borderColor = "red"; // เปลี่ยนขอบเป็นสีแดงเตือน
+            return; // หยุดการทำงาน ไม่ส่งข้อมูล
+        } else {
+            document.getElementById('user').style.borderColor = "#ddd"; // คืนค่าสีขอบ
         }
 
         let finalSku = (currentMode === 'NEW') ? document.getElementById('new-sku').value.trim() : document.getElementById('sku').value.trim();
@@ -302,7 +308,7 @@
             unit: document.getElementById('unit').value,
             ratio: document.getElementById('new-ratio').value,
             name: document.getElementById('item-name').value,
-            user: document.getElementById('user').value,
+            user: userVal, // ส่งค่าชื่อที่กรอกไป
             sap_unit: document.getElementById('new-sap-unit').value,
             barcode: document.getElementById('new-barcode').value,
             weight: document.getElementById('new-weight').value,
