@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ระบบจัดการคลัง</title> <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <title>ระบบจัดการคลัง</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     
     <style>
@@ -12,17 +13,16 @@
             --teenoi-red: #CE1126;
             --teenoi-dark: #8B0000;
             --teenoi-gold: #FDB913;
-            --bg-color: #f8f0f0; /* สีพื้นหลังให้อ่อนลงอีกนิด */
+            --bg-color: #f8f0f0;
         }
 
         body { 
             font-family: 'Sarabun', sans-serif; 
             background-color: var(--bg-color); 
-            padding: 10px; /* ลด padding รอบนอก */
+            padding: 10px; 
             margin: 0; 
             text-align: center; 
             color: #333; 
-            /* ป้องกันการเลื่อนในบาง browser ถ้า content พอดี */
             height: 100vh; 
             box-sizing: border-box;
         }
@@ -31,62 +31,62 @@
             background: white; 
             border-radius: 15px; 
             box-shadow: 0 5px 15px rgba(206, 17, 38, 0.15); 
-            max-width: 500px; /* ลดความกว้างสูงสุดลง */
+            max-width: 550px; /* เพิ่มความกว้างนิดหน่อยเผื่อข้อความยาว */
             margin: 0 auto; 
             overflow: hidden;
             border: 1px solid #ffecec;
             display: flex;
             flex-direction: column;
-            max-height: calc(100vh - 20px); /* พยายามคุมความสูงไม่ให้เกินจอ */
+            max-height: calc(100vh - 20px);
         }
         
-        /* 🔥 HEADER: แบบกะทัดรัด (Compact Header) */
+        /* 🔥 HEADER: แก้ไขให้ชิดซ้ายและบรรทัดเดียว */
         .header-section { 
             background: linear-gradient(135deg, var(--teenoi-red) 0%, var(--teenoi-dark) 100%);
-            /* ลด padding อย่างมาก และใช้ flex จัดเรียงแนวนอน */
-            padding: 10px 15px; 
+            padding: 12px 15px; 
             color: white;
             border-bottom: 4px solid var(--teenoi-gold);
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 15px; /* ระยะห่างระหว่างโลโก้กับชื่อ */
-            flex-shrink: 0; /* ไม่ให้ header หดตัว */
+            justify-content: flex-start; /* ✅ เปลี่ยนเป็นชิดซ้าย */
+            gap: 15px;
+            flex-shrink: 0;
+            text-align: left;
         }
         
         .app-logo { 
-            /* ลดขนาดโลโก้ลงเหลือ 60px */
-            width: 60px; 
-            height: 60px; 
+            width: 55px; /* ปรับขนาดโลโก้ให้พอดี */
+            height: 55px; 
             object-fit: contain; 
             background: white; 
             border-radius: 50%; 
-            padding: 4px;
+            padding: 3px;
             border: 2px solid var(--teenoi-gold);
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         
         h2 { 
             margin: 0; 
-            /* ลดขนาดฟอนต์หัวข้อ */
-            font-size: 18px; 
+            font-size: 20px; /* ✅ เพิ่มขนาดตัวอักษร */
             font-weight: 700; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-            text-align: left;
-            line-height: 1.2;
+            line-height: 1; 
+            white-space: nowrap; /* ✅ บังคับให้อยู่บรรทัดเดียว */
+            overflow: hidden;
+            text-overflow: ellipsis; /* เผื่อจอมือถือเล็กมากๆ ให้แสดง ... */
         }
         
         /* ส่วนเนื้อหา */
         .content-body { 
             padding: 15px; 
-            overflow-y: auto; /* ให้ scroll เฉพาะส่วนเนื้อหาถ้าจำเป็น */
-            flex-grow: 1; /* ให้ขยายเต็มพื้นที่ที่เหลือ */
+            overflow-y: auto;
+            flex-grow: 1;
         }
 
         /* ปุ่มโหมด */
         .mode-container { display: flex; gap: 8px; margin-bottom: 15px; }
         .mode-btn { 
-            flex: 1; padding: 10px 5px; border-radius: 10px; /* ลด padding ปุ่ม */
+            flex: 1; padding: 10px 5px; border-radius: 10px;
             border: 2px solid #eee; font-weight: bold; cursor: pointer; 
             background: white; font-size: 14px; color: #666;
             transition: all 0.2s ease;
@@ -99,10 +99,10 @@
         /* ฟอร์ม input ต่างๆ */
         input, select { 
             width: 100%; 
-            padding: 10px; /* ลด padding ในช่องกรอก */
-            margin: 4px 0; /* ลดระยะห่างระหว่างช่อง */
+            padding: 10px; 
+            margin: 4px 0; 
             border: 2px solid #eee; border-radius: 8px; 
-            box-sizing: border-box; font-size: 15px; /* ลดขนาดฟอนต์นิดหน่อย */
+            box-sizing: border-box; font-size: 15px; 
             background-color: #fafafa;
         }
         input:focus, select:focus { outline: none; border-color: var(--teenoi-red); background-color: #fff; }
@@ -113,18 +113,14 @@
         /* กรอบฟอร์มแบบกะทัดรัด */
         .form-section { 
             background: #fff; border: 1px solid #f0f0f0;
-            padding: 12px; /* ลด padding ในกรอบ */
+            padding: 12px;
             border-radius: 12px; margin-bottom: 12px; 
             text-align: left; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
         .form-label { font-weight: 700; font-size: 14px; color: var(--teenoi-red); margin-bottom: 2px; display: block; }
         
-        /* Helper สำหรับจัดเรียงแนวนอน */
-        .flex-row {
-            display: flex;
-            gap: 8px;
-        }
-        .flex-row > * { flex: 1; } /* ให้ลูกๆ ขยายเต็มพื้นที่เท่ากัน */
+        .flex-row { display: flex; gap: 8px; }
+        .flex-row > * { flex: 1; }
 
         #reader { width: 100%; margin-bottom: 10px; border-radius: 12px; overflow: hidden; display: none; background: #000; border: 3px solid var(--teenoi-gold); }
         
@@ -134,7 +130,7 @@
             background: #ccc; border: none; border-radius: 12px; 
             cursor: not-allowed; margin-top: 10px; font-weight: 700; 
             box-shadow: 0 4px 0 rgba(0,0,0,0.1);
-            flex-shrink: 0; /* ไม่ให้ปุ่มหด */
+            flex-shrink: 0;
         }
         
         .ready-in { background: #28a745; box-shadow: 0 3px 0 #1e7e34; }
@@ -144,7 +140,7 @@
         
         /* ปุ่มกล้อง */
         .camera-btn {
-            width:100%; padding: 8px; cursor:pointer; /* ลด padding ปุ่มกล้อง */
+            width:100%; padding: 8px; cursor:pointer;
             background: #fff; color: var(--teenoi-red);
             border: 2px solid var(--teenoi-red); 
             border-radius: 10px; margin-bottom: 15px; font-weight: bold; font-size: 14px;
@@ -152,10 +148,10 @@
         }
         .camera-btn:hover { background: #fff5f5; }
 
-        /* Log ให้เล็กลง */
+        /* Log */
         #log { 
             margin-top: 15px; text-align: left; font-size: 12px; 
-            max-height: 80px; /* จำกัดความสูง log */
+            max-height: 80px; 
             overflow-y: auto; border-top: 1px dashed #e0e0e0; padding-top: 8px; color: #777;
         }
         .log-item { padding: 4px 0; border-bottom: 1px solid #f9f9f9; }
@@ -170,9 +166,8 @@
              alt="Suki Teenoi" 
              class="app-logo"
              onerror="this.onerror=null; this.src='https://drive.google.com/thumbnail?id=1pJv1ltq9eVPWYabYWWub9S3fR4QC4UuE&sz=w200';">
-        <div>
-            <h2>ระบบจัดการคลัง<br>แห้ง/สิ้นเปลือง</h2>
-        </div>
+        
+        <h2>ระบบจัดการคลังแห้ง/สิ้นเปลือง</h2>
     </div>
 
     <div class="content-body">
@@ -219,6 +214,7 @@
                    </div>
                 </div>
             </div>
+
             <div class="form-section" style="background-color: #fff8f8; border-color: #ffecec;">
                 <div class="flex-row">
                     <div style="flex: 1;">
