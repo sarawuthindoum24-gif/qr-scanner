@@ -2,170 +2,163 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจัดการคลังแห้ง/สิ้นเปลือง</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ระบบจัดการคลัง</title> <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     
     <style>
-        /* 🎨 THEME: Suki Teenoi Red & Gold */
+        /* 🎨 THEME: Suki Teenoi Red & Gold (Compact Version) */
         :root {
-            --teenoi-red: #CE1126;       /* แดงหลัก */
-            --teenoi-dark: #8B0000;      /* แดงเลือดหมู */
-            --teenoi-gold: #FDB913;      /* เหลืองทอง */
-            --bg-color: #FDF2F2;         /* พื้นหลังชมพูจางๆ */
+            --teenoi-red: #CE1126;
+            --teenoi-dark: #8B0000;
+            --teenoi-gold: #FDB913;
+            --bg-color: #f8f0f0; /* สีพื้นหลังให้อ่อนลงอีกนิด */
         }
 
         body { 
             font-family: 'Sarabun', sans-serif; 
             background-color: var(--bg-color); 
-            padding: 15px; 
+            padding: 10px; /* ลด padding รอบนอก */
             margin: 0; 
             text-align: center; 
             color: #333; 
+            /* ป้องกันการเลื่อนในบาง browser ถ้า content พอดี */
+            height: 100vh; 
+            box-sizing: border-box;
         }
         
         .container { 
             background: white; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 30px rgba(206, 17, 38, 0.2); 
-            max-width: 600px; 
+            border-radius: 15px; 
+            box-shadow: 0 5px 15px rgba(206, 17, 38, 0.15); 
+            max-width: 500px; /* ลดความกว้างสูงสุดลง */
             margin: 0 auto; 
             overflow: hidden;
             border: 1px solid #ffecec;
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 20px); /* พยายามคุมความสูงไม่ให้เกินจอ */
         }
         
-        /* 🔥 HEADER: ดีไซน์ใหม่ แดงคาดทอง */
+        /* 🔥 HEADER: แบบกะทัดรัด (Compact Header) */
         .header-section { 
             background: linear-gradient(135deg, var(--teenoi-red) 0%, var(--teenoi-dark) 100%);
-            padding: 30px 20px;
+            /* ลด padding อย่างมาก และใช้ flex จัดเรียงแนวนอน */
+            padding: 10px 15px; 
             color: white;
-            border-bottom: 6px solid var(--teenoi-gold);
-            position: relative;
-        }
-        
-        /* เงาพื้นหลังเพื่อให้โลโก้เด่น */
-        .header-section::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
-            pointer-events: none;
+            border-bottom: 4px solid var(--teenoi-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px; /* ระยะห่างระหว่างโลโก้กับชื่อ */
+            flex-shrink: 0; /* ไม่ให้ header หดตัว */
         }
         
         .app-logo { 
-            width: 130px; 
-            height: 130px; 
+            /* ลดขนาดโลโก้ลงเหลือ 60px */
+            width: 60px; 
+            height: 60px; 
             object-fit: contain; 
-            margin-bottom: 12px; 
             background: white; 
             border-radius: 50%; 
-            padding: 8px;
-            border: 4px solid var(--teenoi-gold);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            padding: 4px;
+            border: 2px solid var(--teenoi-gold);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         
         h2 { 
             margin: 0; 
-            font-size: 24px; 
+            /* ลดขนาดฟอนต์หัวข้อ */
+            font-size: 18px; 
             font-weight: 700; 
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            letter-spacing: 0.5px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            text-align: left;
+            line-height: 1.2;
         }
         
-        .content-body { padding: 25px 20px; }
+        /* ส่วนเนื้อหา */
+        .content-body { 
+            padding: 15px; 
+            overflow-y: auto; /* ให้ scroll เฉพาะส่วนเนื้อหาถ้าจำเป็น */
+            flex-grow: 1; /* ให้ขยายเต็มพื้นที่ที่เหลือ */
+        }
 
         /* ปุ่มโหมด */
-        .mode-container { display: flex; gap: 10px; margin-bottom: 25px; }
+        .mode-container { display: flex; gap: 8px; margin-bottom: 15px; }
         .mode-btn { 
-            flex: 1; padding: 12px; border-radius: 12px; 
+            flex: 1; padding: 10px 5px; border-radius: 10px; /* ลด padding ปุ่ม */
             border: 2px solid #eee; font-weight: bold; cursor: pointer; 
             background: white; font-size: 14px; color: #666;
             transition: all 0.2s ease;
         }
         
-        /* Active States (เน้นสีแดง) */
-        .active-in { 
-            background: #e8f5e9; border-color: #28a745; color: #155724; 
-            transform: translateY(-2px); box-shadow: 0 4px 8px rgba(40,167,69,0.2);
-        }
-        .active-out { 
-            background: #ffebee; border-color: var(--teenoi-red); color: var(--teenoi-red); 
-            transform: translateY(-2px); box-shadow: 0 4px 8px rgba(206,17,38,0.2);
-        }
-        .active-new { 
-            background: #e3f2fd; border-color: #007bff; color: #004085; 
-            transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,123,255,0.2);
-        }
+        .active-in { background: #e8f5e9; border-color: #28a745; color: #155724; }
+        .active-out { background: #ffebee; border-color: var(--teenoi-red); color: var(--teenoi-red); }
+        .active-new { background: #e3f2fd; border-color: #007bff; color: #004085; }
         
-        /* ฟอร์ม */
+        /* ฟอร์ม input ต่างๆ */
         input, select { 
-            width: 100%; padding: 14px; margin: 8px 0; 
-            border: 2px solid #eee; border-radius: 12px; 
-            box-sizing: border-box; font-size: 16px; 
+            width: 100%; 
+            padding: 10px; /* ลด padding ในช่องกรอก */
+            margin: 4px 0; /* ลดระยะห่างระหว่างช่อง */
+            border: 2px solid #eee; border-radius: 8px; 
+            box-sizing: border-box; font-size: 15px; /* ลดขนาดฟอนต์นิดหน่อย */
             background-color: #fafafa;
-            transition: 0.3s;
         }
-        input:focus, select:focus { 
-            outline: none; border-color: var(--teenoi-red); 
-            background-color: #fff; 
-            box-shadow: 0 0 0 4px rgba(206,17,38,0.1);
-        }
+        input:focus, select:focus { outline: none; border-color: var(--teenoi-red); background-color: #fff; }
 
-        .info-display { 
-            background-color: #f8f9fa; border-color: #ddd; 
-            color: #444; font-weight: bold; cursor: default;
-        }
+        .info-display { background-color: #f8f9fa; border-color: #ddd; color: #444; font-weight: bold; }
         .hidden { display: none !important; }
         
+        /* กรอบฟอร์มแบบกะทัดรัด */
         .form-section { 
             background: #fff; border: 1px solid #f0f0f0;
-            padding: 20px; border-radius: 15px; margin-bottom: 20px; 
-            text-align: left; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            padding: 12px; /* ลด padding ในกรอบ */
+            border-radius: 12px; margin-bottom: 12px; 
+            text-align: left; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
-        .form-label { 
-            font-weight: 700; font-size: 15px; 
-            color: var(--teenoi-red); margin-top: 5px; display: block; 
-        }
+        .form-label { font-weight: 700; font-size: 14px; color: var(--teenoi-red); margin-bottom: 2px; display: block; }
         
-        #reader { 
-            width: 100%; margin-bottom: 15px; border-radius: 15px; 
-            overflow: hidden; display: none; background: #000; 
-            border: 4px solid var(--teenoi-gold); 
+        /* Helper สำหรับจัดเรียงแนวนอน */
+        .flex-row {
+            display: flex;
+            gap: 8px;
         }
+        .flex-row > * { flex: 1; } /* ให้ลูกๆ ขยายเต็มพื้นที่เท่ากัน */
+
+        #reader { width: 100%; margin-bottom: 10px; border-radius: 12px; overflow: hidden; display: none; background: #000; border: 3px solid var(--teenoi-gold); }
         
-        /* ปุ่มยืนยัน (Main Button) */
+        /* ปุ่มยืนยัน */
         .btn-submit { 
-            width: 100%; padding: 16px; font-size: 18px; color: white; 
+            width: 100%; padding: 14px; font-size: 18px; color: white; 
             background: #ccc; border: none; border-radius: 12px; 
-            cursor: not-allowed; margin-top: 15px; font-weight: 700; 
+            cursor: not-allowed; margin-top: 10px; font-weight: 700; 
             box-shadow: 0 4px 0 rgba(0,0,0,0.1);
-            transition: all 0.2s;
+            flex-shrink: 0; /* ไม่ให้ปุ่มหด */
         }
         
-        .ready-in { background: #28a745; box-shadow: 0 4px 0 #1e7e34; }
-        .ready-out { background: var(--teenoi-red); box-shadow: 0 4px 0 #990d1c; } /* สีแดงตี๋น้อย */
-        .ready-new { background: #007bff; box-shadow: 0 4px 0 #0056b3; }
-        
-        .btn-submit:active { transform: translateY(4px); box-shadow: none !important; }
+        .ready-in { background: #28a745; box-shadow: 0 3px 0 #1e7e34; }
+        .ready-out { background: var(--teenoi-red); box-shadow: 0 3px 0 #990d1c; }
+        .ready-new { background: #007bff; box-shadow: 0 3px 0 #0056b3; }
+        .btn-submit:active { transform: translateY(3px); box-shadow: none !important; }
         
         /* ปุ่มกล้อง */
         .camera-btn {
-            width:100%; padding:12px; cursor:pointer; 
+            width:100%; padding: 8px; cursor:pointer; /* ลด padding ปุ่มกล้อง */
             background: #fff; color: var(--teenoi-red);
             border: 2px solid var(--teenoi-red); 
-            border-radius: 12px; margin-bottom: 20px; font-weight: bold; font-size: 16px;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            transition: 0.2s;
+            border-radius: 10px; margin-bottom: 15px; font-weight: bold; font-size: 14px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .camera-btn:hover { background: #fff5f5; transform: translateY(-2px); }
+        .camera-btn:hover { background: #fff5f5; }
 
+        /* Log ให้เล็กลง */
         #log { 
-            margin-top: 25px; text-align: left; font-size: 14px; 
-            max-height: 200px; overflow-y: auto; 
-            border-top: 2px dashed #e0e0e0; padding-top: 15px; 
+            margin-top: 15px; text-align: left; font-size: 12px; 
+            max-height: 80px; /* จำกัดความสูง log */
+            overflow-y: auto; border-top: 1px dashed #e0e0e0; padding-top: 8px; color: #777;
         }
-        .log-item { padding: 8px 0; border-bottom: 1px solid #f9f9f9; }
+        .log-item { padding: 4px 0; border-bottom: 1px solid #f9f9f9; }
     </style>
 </head>
 <body>
@@ -173,10 +166,13 @@
 <div class="container">
     
     <div class="header-section">
-        <img src="https://drive.google.com/thumbnail?id=1pJv1ltq9eVPWYabYWWub9S3fR4QC4UuE&sz=w400" 
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Suki_Teenoi_Logo.png/600px-Suki_Teenoi_Logo.png" 
              alt="Suki Teenoi" 
-             class="app-logo">
-        <h2>ระบบจัดการคลังแห้ง/สิ้นเปลือง</h2>
+             class="app-logo"
+             onerror="this.onerror=null; this.src='https://drive.google.com/thumbnail?id=1pJv1ltq9eVPWYabYWWub9S3fR4QC4UuE&sz=w200';">
+        <div>
+            <h2>ระบบจัดการคลัง<br>แห้ง/สิ้นเปลือง</h2>
+        </div>
     </div>
 
     <div class="content-body">
@@ -191,39 +187,47 @@
             <button onclick="toggleCamera()" class="camera-btn">📷 เปิด/ปิด กล้อง</button>
             
             <div class="form-section">
-                <span class="form-label">รหัสสินค้า (SKU):</span>
-                <input type="text" id="sku" placeholder="สแกน หรือ พิมพ์..." onchange="searchProduct()">
-                
-                <span class="form-label" style="color:#666;">ชื่อสินค้า:</span>
-                <input type="text" id="name-display" class="info-display" readonly placeholder="...">
+                <span class="form-label">Scan SKU:</span>
+                <input type="text" id="sku" placeholder="สแกน หรือ พิมพ์รหัส..." onchange="searchProduct()" style="font-weight: bold;">
+                <input type="text" id="name-display" class="info-display" readonly placeholder="ชื่อสินค้าจะปรากฏที่นี่...">
             </div>
         </div>
 
         <div id="form-area" class="hidden">
+            
             <div id="group-new" class="hidden">
                 <div class="form-section">
-                    <span class="form-label">1. ข้อมูลหลัก</span>
-                    <input type="text" id="new-sku" placeholder="รหัสสินค้า (ItemCode)">
-                    <input type="text" id="item-name" placeholder="ชื่อสินค้า (Description)">
-                    <input type="text" id="new-barcode" placeholder="บาร์โค้ด (ถ้ามี)">
-                </div>
-                <div class="form-section">
-                    <span class="form-label">2. หน่วยและการคำนวณ</span>
-                    <div style="display:flex; gap:10px;">
-                        <div style="flex:1;"><input type="number" id="new-ratio" placeholder="ตัวคูณ" value="1"></div>
-                        <div style="flex:1;"><input type="text" id="new-sap-unit" placeholder="หน่วย SAP"></div>
-                    </div>
-                    <input type="text" id="new-detail" placeholder="รายละเอียดหน่วย">
-                    <input type="number" id="new-weight" placeholder="น้ำหนัก (KG)">
+                   <span class="form-label" style="margin-bottom: 8px;">ข้อมูลสินค้าใหม่:</span>
+                   
+                   <div class="flex-row">
+                       <input type="text" id="new-sku" placeholder="รหัสสินค้า (ItemCode)">
+                       <input type="text" id="new-barcode" placeholder="บาร์โค้ด (ถ้ามี)">
+                   </div>
+                   <input type="text" id="item-name" placeholder="ชื่อสินค้า (Description)">
+                   
+                   <div style="margin-top: 4px;">
+                       <span class="form-label" style="font-size: 12px;">การแปลงหน่วย:</span>
+                       <div class="flex-row">
+                            <input type="number" id="new-ratio" placeholder="ตัวคูณ (เช่น 12)" value="1">
+                            <input type="text" id="new-sap-unit" placeholder="หน่วย SAP (เช่น ขวด)">
+                       </div>
+                   </div>
+
+                   <div class="flex-row">
+                        <input type="text" id="new-detail" placeholder="รายละเอียด (เช่น ลัง/12ขวด)">
+                        <input type="number" id="new-weight" placeholder="น้ำหนัก (KG)">
+                   </div>
                 </div>
             </div>
-
-            <div class="form-section">
-                <span class="form-label">จำนวนและหน่วย (Stock):</span>
-                <div style="display:flex; gap:10px;">
-                    <div style="flex:1;"><input type="number" id="qty" value="1"></div>
-                    <div style="flex:1;">
-                        <select id="unit">
+            <div class="form-section" style="background-color: #fff8f8; border-color: #ffecec;">
+                <div class="flex-row">
+                    <div style="flex: 1;">
+                        <span class="form-label">จำนวน:</span>
+                        <input type="number" id="qty" value="1" style="font-size: 18px; font-weight: bold; text-align: center;">
+                    </div>
+                    <div style="flex: 1.5;">
+                        <span class="form-label">หน่วยนับ:</span>
+                        <select id="unit" style="font-size: 16px;">
                             <option value="ลัง">ลัง</option>
                             <option value="ถุง">ถุง</option>
                             <option value="มัด">มัด</option>
@@ -236,20 +240,21 @@
                         </select>
                     </div>
                 </div>
-                <span class="form-label" style="margin-top:10px;">ผู้ทำรายการ:</span>
-                <input type="text" id="user" value="Admin" placeholder="ระบุชื่อ">
+                <div style="margin-top: 8px;">
+                    <input type="text" id="user" value="Admin" placeholder="ผู้ทำรายการ (ระบุชื่อ)" style="text-align: center; background: #fff;">
+                </div>
             </div>
 
-            <button id="btn-submit" class="btn-submit" onclick="submitData()">กรุณาเลือกโหมด</button>
+            <button id="btn-submit" class="btn-submit" onclick="submitData()">เลือกโหมดก่อน</button>
         </div>
         
-        <div id="log">📝 ประวัติการทำงาน...</div>
+        <div id="log">📝 ประวัติ...</div>
     </div>
 </div>
 
 <script>
     // 👇👇👇 ⚠️ อย่าลืมใส่ลิงก์ Web App URL ของคุณตรงนี้! ⚠️ 👇👇👇
-    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz0QnI98PipL0MTXFDqPzpEgzOc9oLl8mjA4NezLLS0oQZvBFl_b7SLaLgc_PtKsDHw/exec"; 
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz_XXXXXXXXXXXX/exec"; 
     // -------------------------------------------------------------
 
     let currentMode = null;
@@ -273,9 +278,9 @@
         btn.className = `btn-submit ready-${mode.toLowerCase()}`;
         
         let txt = "";
-        if(mode === 'IN') txt = 'ยืนยัน "รับเข้า (IN)"';
-        else if(mode === 'OUT') txt = 'ยืนยัน "จ่ายออก (OUT)"';
-        else txt = 'ยืนยัน "สินค้าใหม่"';
+        if(mode === 'IN') txt = '✅ ยืนยัน "รับเข้า"';
+        else if(mode === 'OUT') txt = '✅ ยืนยัน "จ่ายออก"';
+        else txt = '✨ ยืนยัน "สร้างสินค้าใหม่"';
         
         btn.innerText = txt;
         btn.disabled = false;
@@ -285,7 +290,7 @@
         const sku = document.getElementById('sku').value.trim();
         if(!sku || currentMode === 'NEW') return;
         const nameDisplay = document.getElementById('name-display');
-        nameDisplay.value = "🔍 กำลังค้นหา..."; nameDisplay.style.color = "orange";
+        nameDisplay.value = "🔍..."; nameDisplay.style.color = "orange";
         try {
             const response = await fetch(WEBHOOK_URL + "?mode=SEARCH&sku=" + encodeURIComponent(sku));
             const data = await response.json();
@@ -331,7 +336,7 @@
         if(currentMode === 'NEW' && !document.getElementById('item-name').value.trim()) { alert("กรุณาระบุชื่อสินค้า"); return; }
 
         const btn = document.getElementById('btn-submit');
-        const oldText = btn.innerText; btn.innerText = "⏳ กำลังบันทึก..."; btn.disabled = true;
+        const oldText = btn.innerText; btn.innerText = "⏳..."; btn.disabled = true;
 
         const payload = {
             mode: currentMode, sku: finalSku, qty: qtyVal,
@@ -356,11 +361,11 @@
             if (data.status === 'error') { alert("❌ " + data.message); } 
             else if (data.status === 'error_log') {
                 alert("❌ " + data.message);
-                logDiv.innerHTML = `<div class="log-item" style="color:red; font-weight:bold;">[${time}] ❌ ${data.message}</div>` + logDiv.innerHTML;
+                logDiv.innerHTML = `<div class="log-item" style="color:red;">[${time}] ❌ ${data.message}</div>` + logDiv.innerHTML;
             } else {
                 alert("✅ " + data.message);
                 let color = currentMode === 'IN' ? '#28a745' : (currentMode === 'OUT' ? '#CE1126' : '#007bff');
-                logDiv.innerHTML = `<div class="log-item" style="color:${color}; font-weight:bold;">[${time}] ✅ ${data.message}</div>` + logDiv.innerHTML;
+                logDiv.innerHTML = `<div class="log-item" style="color:${color};">[${time}] ✅ ${data.message}</div>` + logDiv.innerHTML;
                 
                 document.getElementById('sku').value = ""; document.getElementById('new-sku').value = "";
                 document.getElementById('item-name').value = ""; document.getElementById('new-barcode').value = "";
@@ -374,4 +379,3 @@
 
 </body>
 </html>
-
