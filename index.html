@@ -109,14 +109,7 @@
     }
 
     async function submitData() {
-        if(!currentMode) return;
-        
-        const btn = document.getElementById('btn-submit');
-        const oldText = btn.innerText;
-        btn.innerText = "กำลังบันทึก...";
-        btn.style.opacity = 0.5;
-
-        // ⚠️ รวบรวมข้อมูลส่งไปหลังบ้าน
+        // ... (โค้ดเดิม) ...
         const payload = {
             mode: currentMode,
             sku: document.getElementById('sku').value,
@@ -124,9 +117,14 @@
             unit: document.getElementById('unit').value,
             ratio: document.getElementById('ratio').value,
             name: document.getElementById('item-name').value,
-            user: document.getElementById('user').value // <--- บรรทัดนี้สำคัญมาก! ถ้าไม่มี ชื่อจะไม่ไป
+            user: document.getElementById('user').value 
         };
 
+        // 🔥🔥🔥 เพิ่มบรรทัดนี้เข้าไปครับ 🔥🔥🔥
+        alert("กำลังส่งข้อมูล: " + JSON.stringify(payload)); 
+        // ------------------------------------
+
+    
         try {
             await fetch(WEBHOOK_URL, {
                 method: "POST",
@@ -149,4 +147,5 @@
 
 </body>
 </html>
+
 
