@@ -31,7 +31,7 @@
             background: white; 
             border-radius: 15px; 
             box-shadow: 0 5px 15px rgba(206, 17, 38, 0.15); 
-            max-width: 550px; /* เพิ่มความกว้างนิดหน่อยเผื่อข้อความยาว */
+            max-width: 550px; 
             margin: 0 auto; 
             overflow: hidden;
             border: 1px solid #ffecec;
@@ -40,7 +40,7 @@
             max-height: calc(100vh - 20px);
         }
         
-        /* 🔥 HEADER: แก้ไขให้ชิดซ้ายและบรรทัดเดียว */
+        /* 🔥 HEADER: โลโก้ซ้าย ชื่อกลาง */
         .header-section { 
             background: linear-gradient(135deg, var(--teenoi-red) 0%, var(--teenoi-dark) 100%);
             padding: 12px 15px; 
@@ -48,14 +48,14 @@
             border-bottom: 4px solid var(--teenoi-gold);
             display: flex;
             align-items: center;
-            justify-content: flex-start; /* ✅ เปลี่ยนเป็นชิดซ้าย */
-            gap: 15px;
+            /* justify-content: flex-start;  <-- ไม่ต้องใช้แล้ว เราจะใช้ flex-grow แทน */
+            gap: 10px;
             flex-shrink: 0;
             text-align: left;
         }
         
         .app-logo { 
-            width: 55px; /* ปรับขนาดโลโก้ให้พอดี */
+            width: 55px; 
             height: 55px; 
             object-fit: contain; 
             background: white; 
@@ -63,17 +63,18 @@
             padding: 3px;
             border: 2px solid var(--teenoi-gold);
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            flex-shrink: 0; /* ห้ามโลโก้หดตัว */
         }
         
         h2 { 
             margin: 0; 
-            font-size: 20px; /* ✅ เพิ่มขนาดตัวอักษร */
+            font-size: 20px; 
             font-weight: 700; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
             line-height: 1; 
-            white-space: nowrap; /* ✅ บังคับให้อยู่บรรทัดเดียว */
+            white-space: nowrap; 
             overflow: hidden;
-            text-overflow: ellipsis; /* เผื่อจอมือถือเล็กมากๆ ให้แสดง ... */
+            text-overflow: ellipsis;
         }
         
         /* ส่วนเนื้อหา */
@@ -96,7 +97,7 @@
         .active-out { background: #ffebee; border-color: var(--teenoi-red); color: var(--teenoi-red); }
         .active-new { background: #e3f2fd; border-color: #007bff; color: #004085; }
         
-        /* ฟอร์ม input ต่างๆ */
+        /* ฟอร์ม input */
         input, select { 
             width: 100%; 
             padding: 10px; 
@@ -110,7 +111,6 @@
         .info-display { background-color: #f8f9fa; border-color: #ddd; color: #444; font-weight: bold; }
         .hidden { display: none !important; }
         
-        /* กรอบฟอร์มแบบกะทัดรัด */
         .form-section { 
             background: #fff; border: 1px solid #f0f0f0;
             padding: 12px;
@@ -124,7 +124,6 @@
 
         #reader { width: 100%; margin-bottom: 10px; border-radius: 12px; overflow: hidden; display: none; background: #000; border: 3px solid var(--teenoi-gold); }
         
-        /* ปุ่มยืนยัน */
         .btn-submit { 
             width: 100%; padding: 14px; font-size: 18px; color: white; 
             background: #ccc; border: none; border-radius: 12px; 
@@ -138,7 +137,6 @@
         .ready-new { background: #007bff; box-shadow: 0 3px 0 #0056b3; }
         .btn-submit:active { transform: translateY(3px); box-shadow: none !important; }
         
-        /* ปุ่มกล้อง */
         .camera-btn {
             width:100%; padding: 8px; cursor:pointer;
             background: #fff; color: var(--teenoi-red);
@@ -148,7 +146,6 @@
         }
         .camera-btn:hover { background: #fff5f5; }
 
-        /* Log */
         #log { 
             margin-top: 15px; text-align: left; font-size: 12px; 
             max-height: 80px; 
@@ -167,7 +164,8 @@
              class="app-logo"
              onerror="this.onerror=null; this.src='https://drive.google.com/thumbnail?id=1pJv1ltq9eVPWYabYWWub9S3fR4QC4UuE&sz=w200';">
         
-        <h2>ระบบจัดการคลังแห้ง/สิ้นเปลือง</h2>
+        <div style="flex: 1; text-align: center; margin-right: 55px;"> <h2>ระบบจัดการคลัง<br>แห้ง/สิ้นเปลือง</h2>
+        </div>
     </div>
 
     <div class="content-body">
@@ -249,7 +247,7 @@
 </div>
 
 <script>
-    // 👇👇👇 ⚠️ อย่าลืมใส่ลิงก์ Web App URL ของคุณตรงนี้! ⚠️ 👇👇👇
+    // 👇👇👇 ⚠️ ใส่ลิงก์ Web App URL ของคุณตรงนี้! 👇👇👇
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz_XXXXXXXXXXXX/exec"; 
     // -------------------------------------------------------------
 
