@@ -182,16 +182,22 @@ function bot3CompactTextV1_(value) {
 function bot3ExecuteRoleJobV1_(job) {
   if (job.action !== 'NEWS_SYMBOL') throw new Error('Khao ไม่รองรับ action: ' + job.action);
   var news = buildNewsGateV1000_(job.symbol);
-  return bot3CompactTextV1_({
-    symbol: job.symbol,
-    status: news.status,
-    gatePass: news.gatePass,
-    reason: news.reason,
-    latestNewsAt: news.latestNewsAt,
-    sources: news.sources,
-    topPositive: (news.topPositive || []).slice(0, 2),
-    topNegative: (news.topNegative || []).slice(0, 2),
-    fetchedAt: news.fetchedAt,
-    stale: news.stale
-  });
+  var status = String(news.status || 'NEUTRAL').toUpperCase();
+  var statusThai = status === 'POSITIVE' ? 'บวก 🟢' :
+    (status === 'NEGATIVE' ? 'ลบ 🔴' : 'กลาง/ยังไม่มีข่าวชี้นำ ⚪');
+  var reason = String(news.reason || '-');
+  if (reason === 'NO_MATCHING_ACTIONABLE_NEWS') {
+    reason = 'ไม่พบข่าวล่าสุดที่ตรงกับหุ้นและมีผลต่อการตัดสินใจ';
+  }
+  var lines = [
+    '📰 ตรวจข่าว ' + job.symbol,
+    '• สถานะข่าว: ' + statusThai,
+    '• News Gate: ' + (news.gatePass === true ? 'ผ่าน' : 'ยังไม่ผ่าน'),
+    '• เหตุผล: ' + reason,
+    '• ข่าวที่เกี่ยวข้อง: ' + Number(news.relevantItemCount || 0) + ' รายการ',
+    '• ข่าวที่ใช้ตัดสินใจได้: ' + Number(news.actionableItemCount || 0) + ' รายการ',
+    '• ข่าวล่าสุด: ' + String(news.latestNewsAt || '-'),
+    '• ตรวจสอบเมื่อ: ' + new Date().toISOString()
+  ];
+  return bot3CompactTextV1_(lines);
 }

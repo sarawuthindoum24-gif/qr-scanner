@@ -184,12 +184,20 @@ function bot3ExecuteRoleJobV1_(job) {
   var holdings = getAllHoldingsV1_().filter(function(x) {
     return String(x.symbol || '').toUpperCase() === job.symbol;
   });
-  return bot3CompactTextV1_({
-    symbol: job.symbol,
-    holdings: holdings,
-    found: holdings.length,
-    checkedAt: new Date().toISOString()
-  });
+  var lines = ['💼 ตรวจพอร์ต ' + job.symbol];
+  if (!holdings.length) {
+    lines.push('• ไม่พบหุ้นนี้ในพอร์ตที่บันทึกไว้');
+  } else {
+    holdings.forEach(function(x) {
+      lines.push('• พอร์ต: ' + String(x.portfolio || '-'));
+      lines.push('• จำนวน: ' + Number(x.shares || 0).toFixed(6).replace(/0+$/, '').replace(/\.$/, '') + ' หุ้น');
+      lines.push('• ต้นทุนเฉลี่ย: $' + Number(x.avgCost || 0).toFixed(2));
+      lines.push('• เงินลงทุน: $' + Number(x.totalCost || 0).toFixed(2));
+      if (x.lastUpdated) lines.push('• อัปเดตพอร์ตล่าสุด: ' + String(x.lastUpdated));
+    });
+  }
+  lines.push('• ตรวจสอบเมื่อ: ' + new Date().toISOString());
+  return bot3CompactTextV1_(lines);
 }
 
 function bot3FinalizeReviewsV1_() {

@@ -18,10 +18,13 @@
 ## หลักฐานการรัน
 
 - investment: `checkBuyAlertsTriggerV1000` ทำงานทุก 5 นาที และรายการล่าสุดวันที่ 29 ส.ค. 2026 สำเร็จต่อเนื่อง
-- Grace: ไม่มี execution ในช่วง 7 วันล่าสุด จึงยังไม่ถือว่า active
+- Grace: เปิดใช้งาน worker แล้ว และ smoke test วันที่ 30 ส.ค. 2026 ประมวลผล NVDA สำเร็จจาก Yahoo ภายในประมาณ 3 วินาที
 - Khao: `dailyPortfolioReportNvidiaThaiV1400` ทำงานวันละ 2 รอบ; หลายรอบสำเร็จ แต่บางรอบหมดเวลาที่ประมาณ 360 วินาที
 - แก้ source Khao ให้ดึง Yahoo หลาย ticker ด้วย `UrlFetchApp.fetchAll` และ fallback เฉพาะ ticker ที่ล้มเหลว เพื่อลดเวลาและ quota
 - ลบ Webull test app key/secret ที่ฝังใน source ของ investment แล้ว; ต้องใช้ Script Properties เท่านั้น
+- Smoke test `team NVDA` วันที่ 30 ส.ค. 2026: Grace, investment และ Khao จบสถานะ `DONE` ครบ ไม่มี error และ investment ทำเครื่องหมาย `notified` ครบทั้งกลุ่ม
+- ราคาที่ Grace ใช้ในการทดสอบมาจาก Yahoo Chart แบบเรียกตามรอบ จึงเป็น near-real-time/polling ไม่ใช่ tick streaming
+- Smoke test V15 ยืนยันว่า investment และ Khao ส่งผลเป็นข้อความภาษาไทยอ่านง่ายแทน JSON และทั้งกลุ่มทำเครื่องหมาย `notified` สำเร็จ
 
 ## ข้อจำกัดสำคัญ
 

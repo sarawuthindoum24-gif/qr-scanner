@@ -20,6 +20,13 @@
 
 บอทไม่ส่งคำสั่งซื้อขายอัตโนมัติ
 
+## สถานะใช้งานจริง (30 สิงหาคม 2026)
+
+- Deploy รุ่นใช้งานจริงโดยรักษา LINE webhook URL เดิม: Grace V14, investment V15 และ Khao V15
+- สร้าง Shared Google Sheet `Bot 3 Trade Hub` และติดตั้ง worker trigger ทุก 5 นาทีครบทั้งสามโปรเจกต์
+- Smoke test `team NVDA` สำเร็จ: Grace, investment และ Khao เป็น `DONE` ครบ และ investment รวมผลพร้อมทำเครื่องหมาย `notified`
+- Grace ใช้ Yahoo สร้างรายงานเทคนิค, investment พบ NVDA ในพอร์ต Dime และ Khao ตรวจ News Gate สำเร็จ
+
 ## Secrets
 
 ห้าม commit ค่า `LINE_TOKEN`, `LINE_USER_ID`, `TWELVE_DATA_API_KEY`, `FINNHUB_API_KEY`, `OPENROUTER_API_KEY`, `NVIDIA_API_KEY`, `WEBULL_APP_KEY`, `WEBULL_APP_SECRET` หรือ `WEBULL_ACCESS_TOKEN` ให้เก็บใน Apps Script Properties เท่านั้น
